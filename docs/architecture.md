@@ -2,114 +2,127 @@
 
 ## Purpose
 
-Foundation for a dual-purpose site:
+Dual-purpose site:
 
-1. Professional portfolio (DOM UI, eventually a desk / computer metaphor)
-2. Interactive astronomy experience (React Three Fiber / Three.js), closer to Stellarium than a decorative starfield
+1. Professional portfolio presented as a **desktop-style personal workspace** (DOM)
+2. Interactive astronomy experience (React Three Fiber / Three.js) — planned; not the landing UI yet
 
-The layers must stay loosely coupled so either can evolve without rewriting the other.
+Layers stay loosely coupled so either can evolve without rewriting the other.
 
 ## Directory responsibilities
 
 | Path | Responsibility |
 | --- | --- |
 | `src/app` | Next.js routes, layouts, metadata |
-| `src/components/ui` | Conventional DOM UI |
-| `src/components/experience` | Boundary that mounts / lazy-loads the WebGL viewport |
-| `src/components/three` | R3F canvas, scenes, Three-specific helpers |
-| `src/features/*` | Feature-scoped logic for portfolio, astronomy, captures |
-| `src/types` | Domain models |
-| `src/data` | Static / mock records |
-| `src/state` | Shared stores and Three runtime refs |
-| `src/config` | Site constants and validated environment config |
+| `src/components/desktop` | Desktop shell, shortcuts, window chrome |
+| `src/components/experience` | Experience host (`PortfolioExperience`) for desktop ↔ future sky |
+| `src/components/three` | Reserved for future R3F sky (not mounted in Milestone 2) |
+| `src/features/*` | Feature content (portfolio, about, contact, astronomy, captures) |
+| `src/types` | Domain models including `desktop.ts` |
+| `src/data` | Shared static / mock domain records |
+| `src/state` | Zustand stores + Three.js runtime refs |
+| `src/config` | Site, env, desktop shortcut / window definitions |
 | `src/hooks` | Shared hooks (`useX`) |
-| `src/lib` | Genuinely cross-cutting utilities only |
-| `public/assets` | Optimized static assets |
-
-Do not add empty directories for ceremony. Every directory should earn its place with real modules.
+| `src/lib` | Cross-cutting utilities (geometry helpers, formatting) |
+| `public/assets` | Optimized static assets only |
 
 ## Coding conventions
 
-- Components: **PascalCase** filenames and exports
-- Hooks: **`useX`** naming
-- Types / interfaces: descriptive domain names (`AstrophotographyCapture`, not `Data`)
-- Prefer explicit imports; avoid barrel `index.ts` files unless they materially improve a public API
+- Components: **PascalCase**
+- Hooks: **`useX`**
+- Descriptive domain type names
+- Prefer explicit imports; avoid barrel files unless they improve a public API
 - Feature logic stays in `features/` when practical
-- Shared utilities stay small and cross-cutting only
-- Distinguish server-only vs client-only code; do not sprinkle `"use client"` across the tree
-- Avoid `any` unless interoperability forces it (document why)
+- Distinguish server-only vs client-only code; keep `"use client"` at real boundaries
+- Avoid `any` unless interoperability forces it
 
 ## DOM vs Three.js boundaries
 
-**DOM layer** owns navigation, portfolio UI, dialogs, panels, settings, metadata, loading / error states, and accessibility surfaces.
+**DOM layer** owns the desktop, windows, portfolio content, and accessibility.
 
-**R3F / Three.js layer** owns celestial rendering, camera orientation inside the canvas, sky navigation, spatial markers, and desk↔sky visual transitions.
+**R3F / Three.js layer** will own celestial rendering later. It must not be required to use the portfolio.
 
-Application controls stay outside the canvas unless a control is inherently spatial. The WebGL viewport (`ExperienceViewport` → `ExperienceCanvas`) is replaceable without rewriting the shell.
+`PortfolioExperience` hosts the desktop in `portfolio` / `transition-to-sky` modes and leaves room for a future sky layer.
+
+## Desktop window system
+
+### Responsibilities
+
+- `Desktop` — wallpaper, brand, shortcut grid, window layer, scroll hint
+- `DesktopShortcut` — accessible button that opens a window type
+- `DesktopWindow` — shared shell (title bar, focus, drag, sizing, body scroll)
+- `window-registry.ts` — maps `DesktopWindowType` → title, size defaults, content component
+
+### State (`src/state/desktop-store.ts`)
+
+Serializable window instances only (no JSX in the store):
+
+- `isOpen`, `zIndex`, `position`, `size`
+- Actions: `openWindow`, `closeWindow`, `focusWindow`, `moveWindow`, `resizeWindow`
+
+**Singleton policy:** one instance per `DesktopWindowType`. Opening an already-open window focuses it.
+
+**Position policy:** closing preserves session position/size; reopen restores them (UI clamps to the viewport).
+
+### Focus and layering
+
+A monotonic `zCounter` assigns stacking order on open/focus/drag-start. Values reset toward a low baseline after a ceiling to avoid runaway z-index growth. The active window receives a subtle title-bar / border treatment.
+
+### Dragging and responsive constraints
+
+- Pointer Events on the title bar (`useWindowDrag`); close control uses `data-window-no-drag`
+- Positions clamped so the title bar stays reachable (`src/lib/desktop-geometry.ts`)
+- Below `767px`: near full-screen windows, dragging disabled, shortcuts move to a bottom grid
+
+### Adding a desktop application
+
+1. Extend `DesktopWindowType` in `src/types/desktop.ts`
+2. Add defaults in `src/config/desktop.ts` and a shortcut entry if desired
+3. Create feature content under `src/features/<name>/`
+4. Register the content component in `src/components/desktop/window-registry.ts`
+
+### Adding a project
+
+Edit `src/features/portfolio/data/projects.ts`. The Projects window reads that list.
 
 ## State management
 
-Two Zustand stores plus a mutable Three runtime holder:
-
-- `src/state/application-store.ts` — sections, panels, selected project / capture, user settings
-- `src/state/experience-store.ts` — `ExperienceMode`, astronomy activity, selected celestial object
-- `src/state/three-runtime.ts` — high-frequency values (e.g. camera yaw/pitch) updated from `useFrame` without React rerenders
-
-Local UI state stays local. Do not globalize every value.
-
-`ExperienceMode`:
-
-```ts
-type ExperienceMode =
-  | "portfolio"
-  | "transition-to-sky"
-  | "sky"
-  | "transition-to-portfolio";
-```
-
-Transitions are modeled now; animation comes later.
+- `desktop-store` — window manager
+- `application-store` — cross-cutting selections/settings
+- `experience-store` — `ExperienceMode` and astronomy orchestration flags
+- `three-runtime` — high-frequency WebGL values (refs), not React state
 
 ## Domain models
 
-| Domain | Types | Sample data |
+| Domain | Types | Data |
 | --- | --- | --- |
-| Portfolio | `src/types/portfolio.ts` | `src/data/mock-projects.ts` |
+| Desktop | `src/types/desktop.ts` | `src/config/desktop.ts` |
+| Portfolio | `src/types/portfolio.ts` | `src/features/portfolio/data/projects.ts` |
+| About | — | `src/features/about/data/about-content.ts` |
+| Contact | — | `src/features/contact/data/contact-links.ts` |
 | Astronomy | `src/types/astronomy.ts` | `src/data/mock-celestial-objects.ts` |
 | Captures | `src/types/captures.ts` | `src/data/mock-captures.ts` |
-| Web images | `src/types/assets.ts` | embedded on captures / projects |
 
-Astronomy coordinates:
+Astronomy coordinates: RA in **hours** `[0,24)`, Dec in **degrees** `[-90,90]`, J2000/ICRS unless noted.
 
-- Right ascension: **hours** `[0, 24)` via `rightAscensionHours`
-- Declination: **degrees** `[-90, 90]` via `declinationDegrees`
-- Frame: ICRS / J2000 unless noted
+## Accessibility assumptions
 
-Astrophotography image fields use `WebImageAsset` (src, width, height, alt). They refer to web derivatives only.
+- Shortcuts are real `<button>` elements (Enter/Space)
+- Windows are non-modal regions (`<article>` + labelled title); desktop shortcuts stay usable while windows are open
+- Close controls have accessible names; focus rings are visible
+- Scroll hint is decorative (`aria-hidden`); motion respects `prefers-reduced-motion`
+- Critical portfolio content remains in the DOM, not only in WebGL
 
 ## Environment model
 
-`src/config/env.ts` exposes `publicEnv` (client-safe) and `serverEnv` (server-only).
-
-`next.config.ts` maps Vercel’s `VERCEL_ENV` to `NEXT_PUBLIC_VERCEL_ENV` so the client can distinguish development / preview / production without scattering `process.env` reads.
-
-## Performance assumptions
-
-- No React store updates every animation frame
-- R3F canvas is client-only and dynamically imported (`ssr: false`)
-- Keep code-splitting paths open for a heavier sky renderer later
-- Do not ship oversized photography originals
-
-## Accessibility
-
-Portfolio information must remain reachable through semantic DOM UI even when WebGL is unavailable or unused. The sky is an enhancement path, not the sole content path.
+`src/config/env.ts` + `next.config.ts` mapping of `VERCEL_ENV` → `NEXT_PUBLIC_VERCEL_ENV`.
 
 ## Future architectural constraints
 
-Future milestones must preserve:
-
-- Clear **DOM / 3D separation**
-- **Typed astronomy coordinates** with unambiguous units
-- **Lightweight optimized** astrophotography assets only
-- **No hosting** of the original photography library in this app
-- **Accessibility** of portfolio information outside WebGL
-- **Isolation** of high-frequency Three.js state from React UI state
+- DOM / 3D separation
+- Typed astronomy coordinates
+- Lightweight optimized astrophotography assets only
+- No hosting of original photography masters
+- Accessibility of portfolio information outside WebGL
+- Isolation of high-frequency Three.js state from React UI state
+- Desktop must not permanently own the viewport — experience modes remain the integration seam for the sky transition

@@ -1,5 +1,5 @@
-import { AppShell } from "@/components/ui/AppShell";
+import { PortfolioExperience } from "@/components/experience/PortfolioExperience";
 
 export default function HomePage() {
-  return <AppShell />;
+  return <PortfolioExperience />;
 }

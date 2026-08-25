@@ -1,8 +1,9 @@
 @import "tailwindcss";
+@import "../components/desktop/desktop.css";
 
 :root {
-  --background: #020617;
-  --foreground: #e2e8f0;
+  --background: #0b1a24;
+  --foreground: #f3f6f8;
 }
 
 html,
@@ -18,4 +19,8 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
 }
