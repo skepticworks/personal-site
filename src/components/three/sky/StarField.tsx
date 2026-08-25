@@ -3,6 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import {
+  AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   Color,
@@ -103,13 +104,23 @@ export function StarField({ starCount }: StarFieldProps) {
   });
 
   return (
-    <points ref={pointsRef} geometry={geometry} frustumCulled={false}>
+    <points
+      ref={pointsRef}
+      geometry={geometry}
+      frustumCulled={false}
+      // Paint after atmosphere/glow so transparent sort never veils the field.
+      renderOrder={3}
+    >
       <pointsMaterial
         vertexColors
         size={averageSize}
-        sizeAttenuation
+        // Celestial sphere: keep screen size stable while looking around.
+        sizeAttenuation={false}
         transparent
         depthWrite={false}
+        depthTest={false}
+        toneMapped={false}
+        blending={AdditiveBlending}
         opacity={1}
         color={new Color("#ffffff")}
       />

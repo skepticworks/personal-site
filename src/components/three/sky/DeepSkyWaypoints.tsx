@@ -103,7 +103,7 @@ export function DeepSkyWaypoints({ touchFriendly }: DeepSkyWaypointsProps) {
   });
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} renderOrder={4}>
       {positions.map((item, index) => (
         <group key={item.id} position={item.position}>
           <mesh
@@ -118,12 +118,14 @@ export function DeepSkyWaypoints({ touchFriendly }: DeepSkyWaypointsProps) {
               };
             }}
             userData={{ deepSkyId: item.id, kind: "waypoint-ring" }}
+            renderOrder={4}
           >
             <ringGeometry args={[0.55, 0.78, 24]} />
             <meshBasicMaterial
               color="#8eb4c8"
               transparent
               depthWrite={false}
+              depthTest={false}
               opacity={0.75}
               side={DoubleSide}
             />
@@ -140,12 +142,14 @@ export function DeepSkyWaypoints({ touchFriendly }: DeepSkyWaypointsProps) {
               };
             }}
             userData={{ deepSkyId: item.id, kind: "waypoint-core" }}
+            renderOrder={4}
           >
             <circleGeometry args={[0.22, 16]} />
             <meshBasicMaterial
               color="#d7e6ef"
               transparent
               depthWrite={false}
+              depthTest={false}
               opacity={0.9}
             />
           </mesh>
@@ -161,6 +165,7 @@ export function DeepSkyWaypoints({ touchFriendly }: DeepSkyWaypointsProps) {
               };
             }}
             userData={{ deepSkyId: item.id, kind: "waypoint-hit" }}
+            renderOrder={4}
           >
             <circleGeometry
               args={[

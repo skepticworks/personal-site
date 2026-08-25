@@ -3,9 +3,9 @@
  * Visually reasonable, not physically perfect.
  */
 
-const MIN_SIZE = 0.28;
-const MAX_SIZE = 2.4;
-const MIN_INTENSITY = 0.18;
+const MIN_SIZE = 1.2;
+const MAX_SIZE = 4.5;
+const MIN_INTENSITY = 0.22;
 const MAX_INTENSITY = 1;
 
 /** Clamp magnitude into a displayable range. */

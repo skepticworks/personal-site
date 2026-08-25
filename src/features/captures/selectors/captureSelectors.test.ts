@@ -13,16 +13,14 @@ import {
 describe("captureSelectors", () => {
   it("looks up by id and slug", () => {
     expect(getCaptureById("cap-orion-2024")?.slug).toBe(
-      "orion-2024-broadband",
+      "orion-nebula-widefield",
     );
-    expect(getCaptureBySlug("orion-2025-narrowband")?.id).toBe(
-      "cap-orion-2025-nb",
-    );
+    expect(getCaptureBySlug("andromeda-2025")?.id).toBe("cap-andromeda-2025");
   });
 
   it("supports multiple captures per target object", () => {
     const captures = getCapturesForObject("obj-m42");
-    expect(captures.length).toBeGreaterThanOrEqual(2);
+    expect(captures.length).toBe(1);
     expect(captures.every((c) => c.targetObjectId === "obj-m42")).toBe(true);
     expect(hasPersonalCapture("obj-m42")).toBe(true);
     expect(hasPersonalCapture("obj-m57")).toBe(false);
@@ -46,13 +44,14 @@ describe("captureSelectors", () => {
     expect(getCaptureDisplayImage(capture, "panel").src).toContain(
       "preview.webp",
     );
+    // No HQ for this export — viewer uses standard preview
     expect(getCaptureDisplayImage(capture, "viewer").src).toContain(
-      "preview-hq.webp",
+      "preview.webp",
     );
   });
 
   it("falls back to preview when HQ is absent", () => {
-    const capture = getCaptureById("cap-orion-2025-nb");
+    const capture = getCaptureById("cap-orion-2024");
     expect(capture).toBeTruthy();
     if (!capture) {
       return;

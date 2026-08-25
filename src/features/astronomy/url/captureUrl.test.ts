@@ -16,7 +16,7 @@ describe("captureUrl", () => {
   });
 
   it("resolves known capture slugs", () => {
-    expect(resolveCaptureFromSlugParam("orion-2024-broadband")?.id).toBe(
+    expect(resolveCaptureFromSlugParam("orion-nebula-widefield")?.id).toBe(
       "cap-orion-2024",
     );
     expect(resolveCaptureFromSlugParam("missing-capture")).toBeUndefined();

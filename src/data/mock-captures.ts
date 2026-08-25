@@ -13,119 +13,40 @@ import type { AstrophotographyCapture } from "@/types/captures";
 export const mockCaptures: AstrophotographyCapture[] = [
   {
     id: "cap-orion-2024",
-    slug: "orion-2024-broadband",
+    slug: "orion-nebula-widefield",
     targetObjectId: "obj-m42",
-    title: "Orion Nebula — broadband placeholder",
+    title: "Orion Nebula",
     description:
-      "PLACEHOLDER capture record demonstrating multi-night broadband metadata.",
+      "Wide-field personal photograph of the Orion Nebula. Acquisition metadata still TBD.",
     featured: true,
-    captureStartDate: "2024-12-12",
-    captureEndDate: "2024-12-14",
     location: {
-      privacy: "region",
-      region: "Example region (placeholder)",
-      country: "United States",
+      privacy: "hidden",
     },
     equipment: {
-      telescope: "Placeholder 80mm refractor",
-      camera: "Placeholder cooled CMOS",
-      mount: "Placeholder equatorial mount",
-      filters: ["L", "R", "G", "B"],
-      accessories: ["Placeholder field flattener"],
+      camera: "Details TBD",
     },
-    acquisition: {
-      exposureGroups: [
-        { filter: "L", exposureSeconds: 180, frameCount: 40 },
-        { filter: "R", exposureSeconds: 180, frameCount: 20 },
-        { filter: "G", exposureSeconds: 180, frameCount: 20 },
-        { filter: "B", exposureSeconds: 180, frameCount: 20 },
-      ],
-      sensitivity: "Gain 100 (placeholder)",
-    },
-    processing: {
-      software: ["PixInsight", "Photoshop"],
-      notes: "PLACEHOLDER processing notes.",
-    },
+    acquisition: {},
     images: {
       thumbnail: {
         src: "/assets/astrophotography/captures/cap-orion-2024/thumbnail.webp",
         width: 640,
-        height: 427,
-        alt: "Placeholder thumbnail of my broadband photograph of the Orion Nebula",
-        bytes: 44,
+        height: 442,
+        alt: "My wide-field photograph of the Orion Nebula",
+        bytes: 4190,
       },
       preview: {
         src: "/assets/astrophotography/captures/cap-orion-2024/preview.webp",
-        width: 1920,
-        height: 1280,
-        alt: "Placeholder preview of my broadband photograph of the Orion Nebula",
-        bytes: 44,
-      },
-      highQualityPreview: {
-        src: "/assets/astrophotography/captures/cap-orion-2024/preview-hq.webp",
-        width: 3200,
-        height: 2133,
-        alt: "Placeholder high-quality web preview of my broadband photograph of the Orion Nebula",
-        bytes: 44,
+        width: 1024,
+        height: 707,
+        alt: "My wide-field photograph of the Orion Nebula showing pink and white nebulosity in Orion’s Sword",
+        bytes: 9816,
       },
     },
-    notes:
-      "PLACEHOLDER — replace with real acquisition/processing context when publishing.",
     celestialCoordinates: {
       rightAscensionHours: 5.588,
       declinationDegrees: -5.391,
     },
     relatedProjectIds: ["proj-personal-site"],
-  },
-  {
-    id: "cap-orion-2025-nb",
-    slug: "orion-2025-narrowband",
-    targetObjectId: "obj-m42",
-    title: "Orion Nebula — narrowband placeholder",
-    description:
-      "PLACEHOLDER second capture of the same target (narrowband workflow example).",
-    captureStartDate: "2025-01-18",
-    captureEndDate: "2025-01-20",
-    location: {
-      privacy: "hidden",
-    },
-    equipment: {
-      telescope: "Placeholder 80mm refractor",
-      camera: "Placeholder mono CMOS",
-      mount: "Placeholder equatorial mount",
-      filters: ["Ha", "OIII"],
-    },
-    acquisition: {
-      exposureGroups: [
-        { filter: "Ha", exposureSeconds: 300, frameCount: 30 },
-        { filter: "OIII", exposureSeconds: 300, frameCount: 20 },
-      ],
-      sensitivity: "Gain 100 (placeholder)",
-    },
-    processing: {
-      software: ["PixInsight"],
-    },
-    images: {
-      thumbnail: {
-        src: "/assets/astrophotography/captures/cap-orion-2025-nb/thumbnail.webp",
-        width: 640,
-        height: 427,
-        alt: "Placeholder thumbnail of my narrowband photograph of the Orion Nebula",
-        bytes: 44,
-      },
-      preview: {
-        src: "/assets/astrophotography/captures/cap-orion-2025-nb/preview.webp",
-        width: 1920,
-        height: 1280,
-        alt: "Placeholder preview of my narrowband photograph of the Orion Nebula",
-        bytes: 44,
-      },
-    },
-    notes: "PLACEHOLDER — demonstrates multiple captures per object without HQ preview.",
-    celestialCoordinates: {
-      rightAscensionHours: 5.588,
-      declinationDegrees: -5.391,
-    },
   },
   {
     id: "cap-andromeda-2025",
