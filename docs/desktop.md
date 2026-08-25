@@ -2,7 +2,7 @@
 
 ## Overview
 
-Milestone 2 replaces the temporary foundation shell with a full-viewport desktop portfolio. Shortcuts open reusable windows; content is data-driven.
+Full-viewport desktop portfolio. Shortcuts open reusable windows; content is data-driven. Milestone 3 adds a scroll-driven transition into a placeholder night sky without destroying desktop window state.
 
 ## How to add a window / shortcut
 
@@ -24,8 +24,16 @@ Append a `PortfolioProject` in `src/features/portfolio/data/projects.ts`.
 
 ## Scroll-to-explore
 
-Decorative hint for the future desk → sky transition. It does not activate astronomy mode yet.
+The hint at the bottom of the desktop fades with transition progress. Copy prefers “Scroll or swipe to explore” on coarse pointers. Wheel / trackpad / swipe drive normalized experience progress (see `docs/architecture.md`).
+
+Accessible alternative: **Explore the night sky** / **Return to desktop** buttons.
 
 ## Integration with the sky experience
 
-`PortfolioExperience` checks `ExperienceMode`. Desktop renders for `portfolio` and `transition-to-sky`. A future R3F sky layer can mount for `sky` / `transition-to-portfolio` beside (not inside) the window system.
+`PortfolioExperience` mounts:
+
+1. Staged R3F `SkyExperience` (behind)
+2. Desktop DOM layer (transformed by progress)
+3. Mode controls + (dev) transition debug overlay
+
+Desktop interaction is allowed only near progress `0`. Open windows survive a round trip via `desktop-store`. Dragging stops if a transition begins mid-drag.

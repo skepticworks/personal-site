@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${display.variable} ${body.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0b1a24] text-[#f3f6f8]">
+      <body className="h-full overflow-hidden bg-[#0b1a24] text-[#f3f6f8]">
         {children}
       </body>
     </html>

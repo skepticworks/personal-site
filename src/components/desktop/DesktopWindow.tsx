@@ -15,6 +15,7 @@ import {
   constrainWindowSize,
 } from "@/lib/desktop-geometry";
 import { useDesktopStore } from "@/state/desktop-store";
+import { useExperienceStore } from "@/state/experience-store";
 import type { DesktopWindowType } from "@/types/desktop";
 
 interface DesktopWindowProps {
@@ -29,6 +30,9 @@ export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
   const focusWindow = useDesktopStore((state) => state.focusWindow);
   const closeWindow = useDesktopStore((state) => state.closeWindow);
   const moveWindow = useDesktopStore((state) => state.moveWindow);
+  const canInteractWithDesktop = useExperienceStore(
+    (state) => state.canInteractWithDesktop,
+  );
   const isCompact = useMediaQuery(DESKTOP_COMPACT_MEDIA_QUERY);
   const articleRef = useRef<HTMLElement>(null);
   const hasFocusedRef = useRef(false);
@@ -72,7 +76,7 @@ export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
   );
 
   const dragHandlers = useWindowDrag({
-    enabled: !isCompact,
+    enabled: !isCompact && canInteractWithDesktop,
     position: windowState.position,
     onFocus,
     onMove,
@@ -110,7 +114,7 @@ export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
         isActive={isActive}
         onClose={() => closeWindow(windowType)}
         dragHandlers={dragHandlers}
-        dragEnabled={!isCompact}
+        dragEnabled={!isCompact && canInteractWithDesktop}
       />
       <div className="desktop-window__body">
         <Content />

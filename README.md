@@ -1,14 +1,14 @@
 # Personal Portfolio & Observatory
 
-Interactive personal workspace combining a professional software portfolio with a planned astronomy / astrophotography experience.
+Interactive personal workspace combining a professional software portfolio with an astronomy / astrophotography experience.
 
-The landing experience is a full-screen **desktop-style portfolio**. A Stellarium-like sky explorer comes in a later milestone.
+The landing experience is a full-screen **desktop-style portfolio**. Scrolling or swiping transitions into a placeholder night-sky shell (Milestone 3). Full Stellarium-style controls come later.
 
 ## Technology stack
 
 - **Next.js** (App Router) + **React** + **TypeScript** (strict)
 - **Zustand** for desktop window + experience state
-- **React Three Fiber** + **Three.js** reserved for the future sky experience
+- **React Three Fiber** + **Three.js** for the sky shell / transition camera
 - **ESLint** + **Prettier**
 
 ## Quick start
@@ -32,8 +32,9 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Architecture overview
 
-- [docs/architecture.md](docs/architecture.md) — conventions, state, DOM vs WebGL
+- [docs/architecture.md](docs/architecture.md) — conventions, state, DOM vs WebGL, transition ownership
 - [docs/desktop.md](docs/desktop.md) — window system, shortcuts, responsive notes
+- [docs/transition.md](docs/transition.md) — progress model, config, camera handoff
 - [docs/assets.md](docs/assets.md) — web-derivative asset policy
 
 ```text
@@ -41,7 +42,10 @@ src/
   app/
   components/
     desktop/           Desktop shell, shortcuts, windows
-    experience/        Experience host (desktop today; sky later)
+    experience/        Experience host, mode controls, debug overlay
+    three/             R3F sky shell, transition camera, placeholder stars
+  experience/
+    transition/        Progress, input, config, visual derivation
   features/
     portfolio/         Projects window + project data
     about/             About window content
@@ -62,6 +66,7 @@ public/assets/
 - Shortcuts: Projects, About, Contact (configured in `src/config/desktop.ts`)
 - Add projects in `src/features/portfolio/data/projects.ts`
 - Replace About/Contact placeholders in their feature `data/` files
+- Scroll / swipe (or **Explore the night sky**) enters the sky transition
 
 ## Static asset policy
 
@@ -86,7 +91,7 @@ Create a GitHub repo, push, then import the project in Vercel (Next.js preset). 
 
 ## Accessibility
 
-Portfolio content is available through normal DOM windows and shortcuts. The future WebGL sky must remain an enhancement path, not the only content path.
+Portfolio content is available through normal DOM windows and shortcuts. The WebGL sky is an enhancement path with keyboard-accessible enter/leave controls; scroll is not required.
 
 ## License
 

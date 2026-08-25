@@ -1,7 +1,7 @@
 "use client";
 
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import type { DesktopPoint } from "@/types/desktop";
 
@@ -17,6 +17,9 @@ interface UseWindowDragOptions {
  * Title-bar dragging via Pointer Events.
  * Live position updates go through onMove; callers should keep store updates
  * scoped to the active window to limit rerenders.
+ *
+ * When `enabled` flips to false mid-drag (e.g. desk → sky transition starts),
+ * pointer capture and user-select locks are released immediately.
  */
 export function useWindowDrag({
   enabled,
@@ -32,6 +35,24 @@ export function useWindowDrag({
     startX: number;
     startY: number;
   } | null>(null);
+  const targetRef = useRef<HTMLElement | null>(null);
+
+  const releaseDrag = useCallback(() => {
+    const drag = dragRef.current;
+    const target = targetRef.current;
+    if (drag && target?.hasPointerCapture(drag.pointerId)) {
+      target.releasePointerCapture(drag.pointerId);
+    }
+    dragRef.current = null;
+    targetRef.current = null;
+    document.body.style.userSelect = "";
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) {
+      releaseDrag();
+    }
+  }, [enabled, releaseDrag]);
 
   const onPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
@@ -52,6 +73,7 @@ export function useWindowDrag({
         startX: position.x,
         startY: position.y,
       };
+      targetRef.current = event.currentTarget;
       event.currentTarget.setPointerCapture(event.pointerId);
       document.body.style.userSelect = "none";
     },
@@ -61,7 +83,7 @@ export function useWindowDrag({
   const onPointerMove = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
       const drag = dragRef.current;
-      if (!drag || drag.pointerId !== event.pointerId) {
+      if (!enabled || !drag || drag.pointerId !== event.pointerId) {
         return;
       }
 
@@ -71,20 +93,19 @@ export function useWindowDrag({
       });
       onMove(next);
     },
-    [clamp, onMove],
+    [clamp, enabled, onMove],
   );
 
-  const endDrag = useCallback((event: ReactPointerEvent<HTMLElement>) => {
-    const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) {
-      return;
-    }
-    dragRef.current = null;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    document.body.style.userSelect = "";
-  }, []);
+  const endDrag = useCallback(
+    (event: ReactPointerEvent<HTMLElement>) => {
+      const drag = dragRef.current;
+      if (!drag || drag.pointerId !== event.pointerId) {
+        return;
+      }
+      releaseDrag();
+    },
+    [releaseDrag],
+  );
 
   return {
     onPointerDown,
