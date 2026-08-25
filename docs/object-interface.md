@@ -57,16 +57,20 @@ and the open panel. Use **Center object** to re-target.
 
 ```text
 /?object=andromeda-galaxy
+/?object=orion-nebula&capture=orion-2025-narrowband
 ```
 
 - Stable **slug** on each `CelestialObject` (not array indices).
+- Optional **capture** slug when multiple personal captures exist for an object.
 - Interactive picks use `router.replace` (no history spam per click).
-- Invalid slugs are stripped; selection is not set.
+- Invalid object slugs are stripped; selection is not set.
+- Invalid/orphan capture slugs are stripped without clearing a valid object.
 - Direct links **enter sky** with snapped progress (skip long cinematic).
-- Returning to desktop clears the `object` param so a lingering deep link does
+- Returning to desktop clears object/capture params so a lingering deep link does
   not immediately force the user back into the sky.
-- Selection ID may remain in the store across desk ↔ sky round-trips; sky UI
+- Selection IDs may remain in the store across desk ↔ sky round-trips; sky UI
   hides outside sky mode and reappears on re-entry.
+- Viewer zoom/pan is never encoded in the URL.
 
 ## Search
 
@@ -83,13 +87,18 @@ Result limit defaults to 10.
 ## Imagery precedence
 
 ```text
-personal capture (by targetObjectId)
+personal capture (by targetObjectId; featured or selected)
     → referenceImage on object
     → no-image fallback
 ```
 
-Centralized in `getPreferredDisplayImage`. Missing asset files fail soft into
-the no-image state.
+Centralized in `getPreferredDisplayImage`. Multiple captures per object are
+switched in the panel without changing `selectedCelestialObjectId`. Missing
+asset files fail soft into the no-image state for display; publish-time
+validation (`npm run validate:astro-assets`) rejects missing derivatives.
+
+See [astrophotography-publishing.md](./astrophotography-publishing.md) for the
+derivative-only publishing contract and full-screen viewer behavior.
 
 ## Responsive presentation
 

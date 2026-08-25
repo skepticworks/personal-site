@@ -3,6 +3,7 @@ import {
   cancelSkyObjectTargeting,
 } from "@/components/three/sky/CelestialCameraController";
 import { getObjectById } from "@/features/astronomy/selectors/objectSelectors";
+import { getFeaturedCaptureForObject } from "@/features/captures/selectors/captureSelectors";
 import { setTargetProgress } from "@/experience/transition/transition-progress";
 import { transitionRuntime } from "@/experience/transition/transition-runtime";
 import { useExperienceStore } from "@/state/experience-store";
@@ -21,6 +22,8 @@ export interface SelectCelestialObjectOptions {
    * Skips / shortens the decorative desktop→sky transition.
    */
   enterSky?: boolean;
+  /** Optional capture to select with the object (deep links). */
+  captureId?: string | null;
 }
 
 /**
@@ -36,6 +39,7 @@ export function selectCelestialObject(
   const {
     focusCamera = true,
     enterSky = false,
+    captureId,
   } = options;
 
   if (objectId !== null) {
@@ -45,7 +49,14 @@ export function selectCelestialObject(
     }
   }
 
-  useExperienceStore.getState().selectCelestialObject(objectId);
+  const store = useExperienceStore.getState();
+  store.selectCelestialObject(objectId);
+
+  if (objectId) {
+    const preferredCaptureId =
+      captureId ?? getFeaturedCaptureForObject(objectId)?.id ?? null;
+    store.selectCapture(preferredCaptureId);
+  }
 
   if (enterSky && objectId) {
     enterSkyForObjectDeepLink();

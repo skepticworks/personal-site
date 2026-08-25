@@ -47,3 +47,27 @@ next-env.d.ts
 .idea
 .vscode/*
 !.vscode/extensions.json
+
+# Astrophotography source / archival formats under website asset trees.
+# The site accepts only deliberate web derivatives (AVIF/WebP) in
+# public/assets/astrophotography/. Do not broaden these to the whole repo
+# unless a format is never needed elsewhere.
+public/assets/astrophotography/**/*.fit
+public/assets/astrophotography/**/*.fits
+public/assets/astrophotography/**/*.fts
+public/assets/astrophotography/**/*.xisf
+public/assets/astrophotography/**/*.tif
+public/assets/astrophotography/**/*.tiff
+public/assets/astrophotography/**/*.raw
+public/assets/astrophotography/**/*.cr2
+public/assets/astrophotography/**/*.cr3
+public/assets/astrophotography/**/*.nef
+public/assets/astrophotography/**/*.arw
+public/assets/astrophotography/**/*.dng
+public/assets/astrophotography/**/*.orf
+public/assets/astrophotography/**/*.rw2
+public/assets/astrophotography/**/*.pef
+public/assets/astrophotography/**/*.psd
+public/assets/astrophotography/**/*.psb
+public/assets/astrophotography/**/*.xcf
+public/assets/astrophotography/**/*.kra

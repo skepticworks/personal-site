@@ -29,7 +29,7 @@ describe("objectSelectors", () => {
 describe("capture relationships", () => {
   it("joins captures by targetObjectId, not name", () => {
     const captures = getCapturesForObject("obj-m42");
-    expect(captures.length).toBeGreaterThan(0);
+    expect(captures.length).toBeGreaterThanOrEqual(2);
     expect(captures.every((c) => c.targetObjectId === "obj-m42")).toBe(true);
     expect(hasPersonalCapture("obj-m42")).toBe(true);
     expect(hasPersonalCapture("obj-m57")).toBe(false);
@@ -42,6 +42,16 @@ describe("getPreferredDisplayImage", () => {
     expect(display.kind).toBe("personal");
     if (display.kind === "personal") {
       expect(display.capture.targetObjectId).toBe("obj-m31");
+      expect(display.image.src).toContain("preview");
+    }
+  });
+
+  it("honors an explicit selected capture", () => {
+    const display = getPreferredDisplayImage("obj-m42", "cap-orion-2025-nb");
+    expect(display.kind).toBe("personal");
+    if (display.kind === "personal") {
+      expect(display.capture.id).toBe("cap-orion-2025-nb");
+      expect(display.captureCount).toBeGreaterThanOrEqual(2);
     }
   });
 

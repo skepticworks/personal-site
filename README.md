@@ -24,11 +24,13 @@ Open [http://localhost:3000](http://localhost:3000).
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Local development server |
-| `npm run build` | Production build |
+| `npm run build` | Production build (runs astro asset validation first) |
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript (`tsc --noEmit`) |
 | `npm run test` | Unit tests (Vitest) |
+| `npm run validate:astro-assets` | Astrophotography asset / capture validation |
+| `npm run validate` | Typecheck + astro asset validation |
 | `npm run format` | Format with Prettier |
 | `npm run format:check` | Check Prettier formatting |
 
@@ -39,6 +41,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - [docs/transition.md](docs/transition.md) — progress model, config, camera handoff
 - [docs/sky-engine.md](docs/sky-engine.md) — celestial coordinates, navigation, waypoints, quality
 - [docs/object-interface.md](docs/object-interface.md) — object panel, search, deep links
+- [docs/astrophotography-publishing.md](docs/astrophotography-publishing.md) — capture publishing workflow
 - [docs/assets.md](docs/assets.md) — web-derivative asset policy
 - [docs/reference-images.md](docs/reference-images.md) — third-party reference imagery
 
@@ -78,7 +81,16 @@ public/assets/
 
 ## Static asset policy
 
-This site hosts **web-optimized derivatives only** — not original astrophotography masters. See [docs/assets.md](docs/assets.md).
+This site hosts **web-optimized derivatives only** — not original
+astrophotography masters. See:
+
+- [docs/assets.md](docs/assets.md) — general asset policy
+- [docs/astrophotography-publishing.md](docs/astrophotography-publishing.md) — publishing workflow, privacy, checklist
+
+| Command | Purpose |
+| --- | --- |
+| `npm run validate:astro-assets` | Reject prohibited source files / invalid capture assets |
+| `npm run validate` | Typecheck + astro asset validation |
 
 ## Environment configuration
 

@@ -8,6 +8,7 @@ import { useExperienceStore } from "@/state/experience-store";
 interface DeepSkyObjectImageProps {
   display: ObjectDisplayImage;
   objectName: string;
+  onOpenViewer?: () => void;
 }
 
 /**
@@ -17,6 +18,7 @@ interface DeepSkyObjectImageProps {
 export function DeepSkyObjectImage({
   display,
   objectName,
+  onOpenViewer,
 }: DeepSkyObjectImageProps) {
   const imageKey = getDisplayImageKey(display);
   return (
@@ -24,6 +26,7 @@ export function DeepSkyObjectImage({
       key={imageKey}
       display={display}
       objectName={objectName}
+      onOpenViewer={onOpenViewer}
     />
   );
 }
@@ -31,6 +34,7 @@ export function DeepSkyObjectImage({
 function DeepSkyObjectImageInner({
   display,
   objectName,
+  onOpenViewer,
 }: DeepSkyObjectImageProps) {
   const reduceMotion = useExperienceStore((state) => state.reduceMotion);
   const [failed, setFailed] = useState(false);
@@ -61,17 +65,40 @@ function DeepSkyObjectImageInner({
             : "dso-image dso-image--personal dso-image--fade"
         }
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- local optional assets; next/image not required for missing files */}
-        <img
-          className="dso-image__media"
-          src={image.src}
-          alt={alt}
-          width={image.width}
-          height={image.height}
-          loading="lazy"
-          decoding="async"
-          onError={() => setFailed(true)}
-        />
+        {onOpenViewer ? (
+          <button
+            type="button"
+            className="dso-image__open"
+            onClick={onOpenViewer}
+            aria-label={`View ${capture.title} full screen`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="dso-image__media"
+              src={image.src}
+              alt={alt}
+              width={image.width}
+              height={image.height}
+              sizes="(max-width: 767px) 92vw, 22rem"
+              loading="eager"
+              decoding="async"
+              onError={() => setFailed(true)}
+            />
+          </button>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="dso-image__media"
+            src={image.src}
+            alt={alt}
+            width={image.width}
+            height={image.height}
+            sizes="(max-width: 767px) 92vw, 22rem"
+            loading="eager"
+            decoding="async"
+            onError={() => setFailed(true)}
+          />
+        )}
         <figcaption className="dso-image__caption">
           <span className="dso-image__badge">Photographed by me</span>
           {captureCount > 1 ? (
@@ -79,9 +106,7 @@ function DeepSkyObjectImageInner({
               {captureCount} personal captures
             </span>
           ) : (
-            <span className="dso-image__meta">
-              {formatCaptureDate(capture.capturedAt.start)}
-            </span>
+            <span className="dso-image__meta">{capture.title}</span>
           )}
         </figcaption>
       </figure>
@@ -104,6 +129,7 @@ function DeepSkyObjectImageInner({
         alt={image.alt || `Reference image of ${objectName}`}
         width={image.width}
         height={image.height}
+        sizes="(max-width: 767px) 92vw, 22rem"
         loading="lazy"
         decoding="async"
         onError={() => setFailed(true)}
@@ -140,16 +166,4 @@ function getDisplayImageKey(display: ObjectDisplayImage): string {
     return `reference:${display.image.src}`;
   }
   return "none";
-}
-
-function formatCaptureDate(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return iso;
-  }
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
 }

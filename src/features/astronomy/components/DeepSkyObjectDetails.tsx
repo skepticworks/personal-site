@@ -1,11 +1,19 @@
 "use client";
 
+import { useState } from "react";
+
 import { DeepSkyCatalogIds, DeepSkyObjectMetadata } from "@/features/astronomy/components/DeepSkyObjectMetadata";
 import { DeepSkyObjectImage } from "@/features/astronomy/components/DeepSkyObjectImage";
 import { requestSkyObjectFocus } from "@/features/astronomy/actions/selectCelestialObject";
 import { getPreferredDisplayImage } from "@/features/astronomy/selectors/displayImage";
-import { hasPersonalCapture } from "@/features/captures/selectors/captureSelectors";
+import { CaptureImageViewer } from "@/features/captures/components/CaptureImageViewer";
+import { ObjectCaptureSection } from "@/features/captures/components/ObjectCaptureSection";
+import {
+  getCaptureById,
+  hasPersonalCapture,
+} from "@/features/captures/selectors/captureSelectors";
 import type { CelestialObject } from "@/types/astronomy";
+import { useExperienceStore } from "@/state/experience-store";
 
 interface DeepSkyObjectDetailsProps {
   object: CelestialObject;
@@ -20,24 +28,53 @@ export function DeepSkyObjectDetails({
   object,
   headingId = "dso-details-title",
 }: DeepSkyObjectDetailsProps) {
-  const display = getPreferredDisplayImage(object.id);
+  const selectedCaptureId = useExperienceStore(
+    (state) => state.selectedCaptureId,
+  );
+  const display = getPreferredDisplayImage(object.id, selectedCaptureId);
   const photographed = hasPersonalCapture(object.id);
+  const [viewerSession, setViewerSession] = useState<{
+    objectId: string;
+    captureId: string;
+  } | null>(null);
+
+  const viewerCapture =
+    (selectedCaptureId ? getCaptureById(selectedCaptureId) : undefined) ??
+    (display.kind === "personal" ? display.capture : undefined);
+
+  const viewerOpen =
+    viewerSession !== null &&
+    viewerSession.objectId === object.id &&
+    viewerCapture !== undefined &&
+    viewerSession.captureId === viewerCapture.id;
+
+  const openViewer = () => {
+    if (!viewerCapture) {
+      return;
+    }
+    setViewerSession({ objectId: object.id, captureId: viewerCapture.id });
+  };
 
   return (
     <div className="dso-details">
-      <DeepSkyObjectImage display={display} objectName={object.commonName} />
+      <DeepSkyObjectImage
+        display={display}
+        objectName={object.commonName}
+        onOpenViewer={viewerCapture ? openViewer : undefined}
+      />
 
       <header className="dso-details__header">
         <h2 id={headingId} className="dso-details__title">
           {object.commonName}
         </h2>
         <DeepSkyCatalogIds object={object} />
-        {photographed && display.kind !== "personal" ? (
-          <p className="dso-details__photo-flag">Photographed by me</p>
-        ) : null}
       </header>
 
       <DeepSkyObjectMetadata object={object} />
+
+      {photographed ? (
+        <ObjectCaptureSection object={object} onOpenViewer={openViewer} />
+      ) : null}
 
       {object.description ? (
         <section className="dso-details__section" aria-label="About">
@@ -69,6 +106,14 @@ export function DeepSkyObjectDetails({
           Center object
         </button>
       </div>
+
+      {viewerOpen && viewerCapture ? (
+        <CaptureImageViewer
+          capture={viewerCapture}
+          targetName={object.commonName}
+          onClose={() => setViewerSession(null)}
+        />
+      ) : null}
     </div>
   );
 }

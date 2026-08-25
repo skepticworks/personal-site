@@ -37,6 +37,10 @@ export function SkyExperience({ className }: SkyExperienceProps) {
   const canInteractWithSky = useExperienceStore(
     (state) => state.canInteractWithSky,
   );
+  const isCaptureViewerOpen = useExperienceStore(
+    (state) => state.isCaptureViewerOpen,
+  );
+  const skyPointerActive = canInteractWithSky && !isCaptureViewerOpen;
   const skyRenderQualityPreference = useExperienceStore(
     (state) => state.skyRenderQualityPreference,
   );
@@ -107,7 +111,7 @@ export function SkyExperience({ className }: SkyExperienceProps) {
       style={{
         opacity: 0,
         visibility: "hidden",
-        pointerEvents: canInteractWithSky ? "auto" : "none",
+        pointerEvents: skyPointerActive ? "auto" : "none",
       }}
     >
       <div ref={labelHostRef} className="sky-label-host" />
@@ -133,7 +137,7 @@ export function SkyExperience({ className }: SkyExperienceProps) {
         <StarField starCount={quality.starCount} />
         <DeepSkyWaypoints touchFriendly={touchFriendly} />
         <SkyPointerControls
-          active={canInteractWithSky}
+          active={skyPointerActive}
           enableHover={enableHover}
         />
         <WaypointLabels

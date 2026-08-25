@@ -71,6 +71,8 @@ camera). It must not be required to use the portfolio.
 | `cameraOwner` | `"none"` \| `"transition"` \| `"sky"` |
 | `interactionOwner` | `"desktop"` \| `"transition"` \| `"sky"` |
 | `selectedCelestialObjectId` | Deep-sky selection (preserved on return to desk) |
+| `selectedCaptureId` | Personal capture within the selected object |
+| `isCaptureViewerOpen` | Full-screen web-preview viewer (pauses sky pointers) |
 | `skyRenderQualityPreference` | `auto` \| `low` \| `medium` \| `high` |
 | `reduceMotion` | Synced from `prefers-reduced-motion` |
 
@@ -240,6 +242,10 @@ Edit `src/features/portfolio/data/projects.ts`. The Projects window reads that l
 | Contact | — | `src/features/contact/data/contact-links.ts` |
 | Astronomy | `src/types/astronomy.ts` | `src/features/astronomy/data/deep-sky-objects.ts`, `stars.ts` |
 | Captures | `src/types/captures.ts` | `src/data/mock-captures.ts` |
+
+Captures are web-derivative-only. Publishing workflow:
+`docs/astrophotography-publishing.md`. Asset ceilings:
+`src/config/astrophotography-assets.ts`.
 
 Astronomy coordinates: RA in **hours** `[0,24)`, Dec in **degrees** `[-90,90]`, J2000/ICRS unless noted. Full sky conventions: `docs/sky-engine.md`.
 

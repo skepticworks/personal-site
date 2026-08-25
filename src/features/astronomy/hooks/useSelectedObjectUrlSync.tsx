@@ -6,9 +6,14 @@ import { useEffect, useRef } from "react";
 import { selectCelestialObject } from "@/features/astronomy/actions/selectCelestialObject";
 import { getObjectById } from "@/features/astronomy/selectors/objectSelectors";
 import {
+  CAPTURE_URL_PARAM,
+  resolveCaptureFromSlugParam,
+} from "@/features/astronomy/url/captureUrl";
+import {
   OBJECT_URL_PARAM,
   resolveObjectFromSlugParam,
 } from "@/features/astronomy/url/objectUrl";
+import { getCapturesForObject } from "@/features/captures/selectors/captureSelectors";
 import { useExperienceStore } from "@/state/experience-store";
 
 function isDesktopFacingMode(mode: string): boolean {
@@ -16,17 +21,12 @@ function isDesktopFacingMode(mode: string): boolean {
 }
 
 /**
- * Lightweight URL ↔ selection sync for deep-sky objects.
+ * Lightweight URL ↔ selection sync for deep-sky objects and optional captures.
  *
- * Model: `/?object=andromeda-galaxy` (stable slug).
+ * Model: `/?object=orion-nebula&capture=orion-2025-narrowband`
  *
- * Critical invariants:
- * - URL→selection reacts only to `object` query changes — never to mode
- *   changes. Re-entering the sky with a preserved selection must not treat a
- *   still-empty URL as a deselect / reselect+focus cycle.
- * - While a selection→URL write is in flight (`syncedSlugRef` set, param not
- *   updated yet), ignore a transient empty param.
- * - `enterSky` is mount-hydrate only.
+ * Capture param is shareable but secondary — invalid/orphan capture slugs are
+ * stripped without clearing a valid object selection.
  */
 export function useSelectedObjectUrlSync(): void {
   const router = useRouter();
@@ -35,12 +35,17 @@ export function useSelectedObjectUrlSync(): void {
   const selectedId = useExperienceStore(
     (state) => state.selectedCelestialObjectId,
   );
+  const selectedCaptureId = useExperienceStore(
+    (state) => state.selectedCaptureId,
+  );
   const mode = useExperienceStore((state) => state.mode);
 
   const initializedFromUrl = useRef(false);
-  /** Last slug we wrote or intentionally mirrored — skip echo apply. */
-  const syncedSlugRef = useRef<string | null>(null);
+  /** Last object slug we wrote or intentionally mirrored — skip echo apply. */
+  const syncedObjectSlugRef = useRef<string | null>(null);
+  const syncedCaptureSlugRef = useRef<string | null>(null);
   const objectParam = searchParams.get(OBJECT_URL_PARAM);
+  const captureParam = searchParams.get(CAPTURE_URL_PARAM);
 
   // Initial URL → selection (once on mount)
   useEffect(() => {
@@ -50,57 +55,85 @@ export function useSelectedObjectUrlSync(): void {
     initializedFromUrl.current = true;
 
     if (!objectParam) {
-      syncedSlugRef.current = null;
-      return;
-    }
-
-    const object = resolveObjectFromSlugParam(objectParam);
-    if (!object) {
-      syncedSlugRef.current = null;
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete(OBJECT_URL_PARAM);
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-      return;
-    }
-
-    syncedSlugRef.current = object.slug;
-    selectCelestialObject(object.id, {
-      focusCamera: true,
-      updateUrl: false,
-      enterSky: true,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only hydrate
-  }, []);
-
-  // Selection → URL (sky modes only; clear param on portfolio / deselect)
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    const currentParam = params.get(OBJECT_URL_PARAM);
-
-    if (isDesktopFacingMode(mode)) {
-      if (mode === "portfolio" && currentParam) {
-        syncedSlugRef.current = null;
-        params.delete(OBJECT_URL_PARAM);
+      syncedObjectSlugRef.current = null;
+      syncedCaptureSlugRef.current = null;
+      if (captureParam) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete(CAPTURE_URL_PARAM);
         const qs = params.toString();
         router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
       }
       return;
     }
 
-    // Only mirror into the URL once fully in sky — avoids mid-transition churn.
+    const object = resolveObjectFromSlugParam(objectParam);
+    if (!object) {
+      syncedObjectSlugRef.current = null;
+      syncedCaptureSlugRef.current = null;
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete(OBJECT_URL_PARAM);
+      params.delete(CAPTURE_URL_PARAM);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      return;
+    }
+
+    syncedObjectSlugRef.current = object.slug;
+    const capture = resolveCaptureFromSlugParam(captureParam);
+    selectCelestialObject(object.id, {
+      focusCamera: true,
+      updateUrl: false,
+      enterSky: true,
+      captureId:
+        capture && capture.targetObjectId === object.id ? capture.id : undefined,
+    });
+
+    if (capture && capture.targetObjectId === object.id) {
+      syncedCaptureSlugRef.current = capture.slug;
+    } else {
+      syncedCaptureSlugRef.current = null;
+      if (captureParam) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete(CAPTURE_URL_PARAM);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only hydrate
+  }, []);
+
+  // Selection → URL (sky modes only; clear params on portfolio / deselect)
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    const currentObjectParam = params.get(OBJECT_URL_PARAM);
+    const currentCaptureParam = params.get(CAPTURE_URL_PARAM);
+
+    if (isDesktopFacingMode(mode)) {
+      if (mode === "portfolio" && (currentObjectParam || currentCaptureParam)) {
+        syncedObjectSlugRef.current = null;
+        syncedCaptureSlugRef.current = null;
+        params.delete(OBJECT_URL_PARAM);
+        params.delete(CAPTURE_URL_PARAM);
+        const qs = params.toString();
+        router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      }
+      return;
+    }
+
     if (mode !== "sky") {
       return;
     }
 
     if (!selectedId) {
-      if (currentParam) {
-        syncedSlugRef.current = null;
+      if (currentObjectParam || currentCaptureParam) {
+        syncedObjectSlugRef.current = null;
+        syncedCaptureSlugRef.current = null;
         params.delete(OBJECT_URL_PARAM);
+        params.delete(CAPTURE_URL_PARAM);
         const qs = params.toString();
         router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
       } else {
-        syncedSlugRef.current = null;
+        syncedObjectSlugRef.current = null;
+        syncedCaptureSlugRef.current = null;
       }
       return;
     }
@@ -110,17 +143,49 @@ export function useSelectedObjectUrlSync(): void {
       return;
     }
 
-    if (currentParam === object.slug) {
-      syncedSlugRef.current = object.slug;
-      return;
+    let dirty = false;
+    if (currentObjectParam !== object.slug) {
+      syncedObjectSlugRef.current = object.slug;
+      params.set(OBJECT_URL_PARAM, object.slug);
+      dirty = true;
+    } else {
+      syncedObjectSlugRef.current = object.slug;
     }
 
-    syncedSlugRef.current = object.slug;
-    params.set(OBJECT_URL_PARAM, object.slug);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [mode, pathname, router, searchParams, selectedId]);
+    const captures = getCapturesForObject(object.id);
+    const capture =
+      selectedCaptureId &&
+      captures.find((item) => item.id === selectedCaptureId);
 
-  // URL → selection: only when the object query string actually changes
+    if (capture && captures.length > 1) {
+      if (currentCaptureParam !== capture.slug) {
+        syncedCaptureSlugRef.current = capture.slug;
+        params.set(CAPTURE_URL_PARAM, capture.slug);
+        dirty = true;
+      } else {
+        syncedCaptureSlugRef.current = capture.slug;
+      }
+    } else if (currentCaptureParam) {
+      syncedCaptureSlugRef.current = null;
+      params.delete(CAPTURE_URL_PARAM);
+      dirty = true;
+    } else {
+      syncedCaptureSlugRef.current = null;
+    }
+
+    if (dirty) {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [
+    mode,
+    pathname,
+    router,
+    searchParams,
+    selectedCaptureId,
+    selectedId,
+  ]);
+
+  // URL → selection: only when object/capture query strings change
   useEffect(() => {
     if (!initializedFromUrl.current) {
       return;
@@ -131,17 +196,18 @@ export function useSelectedObjectUrlSync(): void {
       return;
     }
 
-    const slug = objectParam;
+    const objectSlug = objectParam;
+    const captureSlug = captureParam;
 
-    // Echo of our own write (or write still in flight with matching intent).
-    if (slug === syncedSlugRef.current) {
+    if (
+      objectSlug === syncedObjectSlugRef.current &&
+      captureSlug === syncedCaptureSlugRef.current
+    ) {
       return;
     }
 
-    if (!slug) {
-      // Selection→URL may have just set syncedSlugRef and queued replace while
-      // searchParams are still empty (sky re-entry). Do not deselect.
-      if (syncedSlugRef.current !== null) {
+    if (!objectSlug) {
+      if (syncedObjectSlugRef.current !== null) {
         return;
       }
 
@@ -155,25 +221,33 @@ export function useSelectedObjectUrlSync(): void {
       return;
     }
 
-    const object = resolveObjectFromSlugParam(slug);
+    const object = resolveObjectFromSlugParam(objectSlug);
     if (!object) {
       return;
     }
 
-    syncedSlugRef.current = object.slug;
+    syncedObjectSlugRef.current = object.slug;
     const current = useExperienceStore.getState().selectedCelestialObjectId;
-    if (object.id === current) {
-      // Already selected (e.g. preserved across desk round-trip) — restore URL
-      // echo only; do not re-run camera targeting.
-      return;
-    }
+    const capture = resolveCaptureFromSlugParam(captureSlug);
+    const nextCaptureId =
+      capture && capture.targetObjectId === object.id ? capture.id : undefined;
 
-    selectCelestialObject(object.id, {
-      focusCamera: true,
-      updateUrl: false,
-      enterSky: false,
-    });
-    // Intentionally depend only on objectParam — mode changes must not re-apply
-    // a stale empty URL when returning to the sky with a preserved selection.
-  }, [objectParam]);
+    if (object.id !== current) {
+      selectCelestialObject(object.id, {
+        focusCamera: true,
+        updateUrl: false,
+        enterSky: false,
+        captureId: nextCaptureId,
+      });
+    } else if (nextCaptureId) {
+      syncedCaptureSlugRef.current = capture!.slug;
+      if (
+        useExperienceStore.getState().selectedCaptureId !== nextCaptureId
+      ) {
+        useExperienceStore.getState().selectCapture(nextCaptureId);
+      }
+    } else {
+      syncedCaptureSlugRef.current = null;
+    }
+  }, [captureParam, objectParam]);
 }

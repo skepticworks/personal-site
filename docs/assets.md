@@ -7,41 +7,62 @@ This repository and deployed site host **web-optimized derivatives only**.
 Do **not** commit or deploy:
 
 - Full-resolution RAW / TIFF / FITS masters
+- Calibration frames, stacked masters, or intermediate processing files
 - Uncompressed exhibition prints
 - Complete original capture libraries
 - Multi-hundred-megabyte “archive quality” files
 
-Those assets live in an external library. The site may reference them conceptually (metadata, offline notes) but does not serve them.
+Those assets live in an external library. The site may reference them
+conceptually (metadata, offline notes) but does not serve them.
+
+For the full publishing contract, see
+[astrophotography-publishing.md](./astrophotography-publishing.md).
 
 ## Allowed assets
 
 | Kind | Location | Guidance |
 | --- | --- | --- |
-| General UI imagery | `public/assets/images/` | Prefer compressed WebP/AVIF; use `next/image` in DOM UI |
-| Astrophotography thumbnails | `public/assets/astrophotography/thumbnails/` | Small grid / marker images |
-| Astrophotography previews | `public/assets/astrophotography/previews/` | Display-sized compressed images |
+| General UI imagery | `public/assets/images/` | Prefer compressed WebP/AVIF |
+| Astrophotography captures | `public/assets/astrophotography/captures/<capture-id>/` | `thumbnail`, `preview`, optional `preview-hq` |
+| Third-party reference imagery | `public/assets/images/reference/` | Credited survey / educational stills |
 | Three.js textures | `public/assets/textures/` | Power-of-two where helpful; sized for GPU upload |
 | Icons | `public/assets/icons/` | SVG preferred |
 | Fonts | `public/assets/fonts/` | Only if self-hosting is required |
 
+Legacy flat `astrophotography/thumbnails` and `previews` folders are retired for
+new content — use per-capture directories.
+
 ## Modeling images in code
 
-Use `WebImageAsset` from `src/types/assets.ts`:
+Use `WebImageAsset` / `CaptureImageSet` from `src/types/assets.ts`:
 
 ```ts
-interface WebImageAsset {
-  src: string;
-  width: number;
-  height: number;
-  alt: string;
+interface CaptureImageSet {
+  thumbnail: CaptureImageAsset;
+  preview: CaptureImageAsset;
+  highQualityPreview?: CaptureImageAsset;
 }
 ```
 
-Point `src` at paths under `/assets/...`. Do not invent fields that imply an original master is available from this app.
+Point `src` at paths under `/assets/...`. Do not invent fields that imply an
+original master is available from this app (`originalSrc`, RAW links, etc.).
+
+Policy ceilings: `src/config/astrophotography-assets.ts`.
 
 ## Loading strategy
 
-- **DOM UI**: `next/image` for conventional imagery when files exist
-- **WebGL**: load textures via Three.js / R3F from `public/assets/textures` (or capture previews when intentionally used as textures)
+- **DOM UI**: responsive `<img>` / `sizes` for capture previews; lazy-load
+  offscreen thumbnails; eager-load the selected capture preview
+- **Full-screen viewer**: `preview`, upgrading to `highQualityPreview` when
+  present and loaded
+- **WebGL**: textures from `public/assets/textures` only — do not use capture
+  previews as Three.js textures by default
 
-Empty asset folders are intentional until real optimized media is added.
+## Validation
+
+```bash
+npm run validate:astro-assets
+```
+
+Runs as `prebuild` so production builds refuse prohibited source formats and
+broken capture asset references.

@@ -6,7 +6,7 @@ Reference imagery is **separate** from personal astrophotography captures.
 
 | Kind | Owner | Location |
 | --- | --- | --- |
-| Personal captures | `AstrophotographyCapture` | `/assets/astrophotography/{thumbnails,previews}/` |
+| Personal captures | `AstrophotographyCapture` | `/assets/astrophotography/captures/<capture-id>/` |
 | Reference images | `CelestialObject.referenceImage` | `/assets/images/reference/` |
 
 Do not copy personal preview URLs onto deep-sky object records.

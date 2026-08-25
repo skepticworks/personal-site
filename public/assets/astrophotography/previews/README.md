@@ -1,3 +1,8 @@
-# Astrophotography previews
+# Legacy flat preview folder
 
-Display-sized compressed derivatives for the site. Not original masters.
+Prefer per-capture directories:
+
+`public/assets/astrophotography/captures/<capture-id>/preview.avif|webp`
+(and optional `preview-hq.avif|webp`)
+
+This folder is retained only for historical layout notes. Do not add new assets here.

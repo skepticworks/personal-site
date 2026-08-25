@@ -6,8 +6,8 @@ import { clearCelestialObjectSelection } from "@/features/astronomy/actions/sele
 import { useExperienceStore } from "@/state/experience-store";
 
 /**
- * Escape cancels targeting / clears selection while sky is interactive,
- * without intercepting keystrokes in inputs or search.
+ * Escape closes the capture viewer first, then clears object selection.
+ * Does not intercept keystrokes in inputs or search.
  */
 export function useSkyKeyboardShortcuts(): void {
   useEffect(() => {
@@ -20,6 +20,13 @@ export function useSkyKeyboardShortcuts(): void {
         return;
       }
       const state = useExperienceStore.getState();
+
+      if (state.isCaptureViewerOpen) {
+        event.preventDefault();
+        state.setCaptureViewerOpen(false);
+        return;
+      }
+
       if (!state.canInteractWithSky) {
         return;
       }

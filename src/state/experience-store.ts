@@ -19,6 +19,16 @@ interface ExperienceState {
   cameraOwner: CameraOwner;
   interactionOwner: "desktop" | "transition" | "sky";
   selectedCelestialObjectId: string | null;
+  /**
+   * Capture selected within the current object inspection UI.
+   * Cleared when the celestial object selection changes.
+   */
+  selectedCaptureId: string | null;
+  /**
+   * Full-screen capture preview viewer. When open, sky pointer/keyboard
+   * navigation yields to the viewer without changing astronomical selection.
+   */
+  isCaptureViewerOpen: boolean;
   isAstronomySceneActive: boolean;
   reduceMotion: boolean;
   /** User/developer sky quality preference (`auto` picks from device signals). */
@@ -40,6 +50,8 @@ interface ExperienceState {
   /** Request portfolio via a11y / programmatic control. */
   requestEnterPortfolio: () => void;
   selectCelestialObject: (objectId: string | null) => void;
+  selectCapture: (captureId: string | null) => void;
+  setCaptureViewerOpen: (open: boolean) => void;
 }
 
 function isAstronomyActive(mode: ExperienceMode): boolean {
@@ -83,6 +95,8 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
   cameraOwner: "none",
   interactionOwner: "desktop",
   selectedCelestialObjectId: null,
+  selectedCaptureId: null,
+  isCaptureViewerOpen: false,
   isAstronomySceneActive: false,
   reduceMotion: false,
   skyRenderQualityPreference: "auto",
@@ -112,5 +126,11 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
     enterPortfolioRequestHandlers.forEach((handler) => handler());
   },
   selectCelestialObject: (objectId) =>
-    set({ selectedCelestialObjectId: objectId }),
+    set({
+      selectedCelestialObjectId: objectId,
+      selectedCaptureId: null,
+      isCaptureViewerOpen: false,
+    }),
+  selectCapture: (captureId) => set({ selectedCaptureId: captureId }),
+  setCaptureViewerOpen: (open) => set({ isCaptureViewerOpen: open }),
 }));
