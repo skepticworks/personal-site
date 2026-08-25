@@ -28,10 +28,18 @@ export const cameraOrientationRef: { current: CameraOrientationSnapshot } = {
 };
 
 /**
- * Future sky navigation should write here only when
- * `useExperienceStore.getState().cameraOwner === "sky"`.
+ * Sky navigation writes the camera only when
+ * `useExperienceStore.getState().cameraOwner === "sky"` and this flag is true.
  * During transition, `TransitionCameraController` owns the camera.
  */
 export const skyNavigationActiveRef: { current: boolean } = {
   current: false,
+};
+
+/**
+ * Hovered deep-sky object id for sky UI (updated on pointer move, not every frame).
+ * Selection remains in `experience-store.selectedCelestialObjectId`.
+ */
+export const hoveredCelestialObjectIdRef: { current: string | null } = {
+  current: null,
 };

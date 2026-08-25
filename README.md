@@ -2,13 +2,14 @@
 
 Interactive personal workspace combining a professional software portfolio with an astronomy / astrophotography experience.
 
-The landing experience is a full-screen **desktop-style portfolio**. Scrolling or swiping transitions into a placeholder night-sky shell (Milestone 3). Full Stellarium-style controls come later.
+The landing experience is a full-screen **desktop-style portfolio**. Scrolling or swiping transitions into an **interactive celestial sky** (Milestone 4) with deep-sky waypoints and camera targeting. Full Stellarium-style catalogs come later.
 
 ## Technology stack
 
 - **Next.js** (App Router) + **React** + **TypeScript** (strict)
 - **Zustand** for desktop window + experience state
-- **React Three Fiber** + **Three.js** for the sky shell / transition camera
+- **React Three Fiber** + **Three.js** for the celestial sky engine
+- **Vitest** for astronomy coordinate unit tests
 - **ESLint** + **Prettier**
 
 ## Quick start
@@ -27,6 +28,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript (`tsc --noEmit`) |
+| `npm run test` | Unit tests (Vitest) |
 | `npm run format` | Format with Prettier |
 | `npm run format:check` | Check Prettier formatting |
 
@@ -35,6 +37,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - [docs/architecture.md](docs/architecture.md) — conventions, state, DOM vs WebGL, transition ownership
 - [docs/desktop.md](docs/desktop.md) — window system, shortcuts, responsive notes
 - [docs/transition.md](docs/transition.md) — progress model, config, camera handoff
+- [docs/sky-engine.md](docs/sky-engine.md) — celestial coordinates, navigation, waypoints, quality
 - [docs/assets.md](docs/assets.md) — web-derivative asset policy
 
 ```text
@@ -42,18 +45,20 @@ src/
   app/
   components/
     desktop/           Desktop shell, shortcuts, windows
-    experience/        Experience host, mode controls, debug overlay
-    three/             R3F sky shell, transition camera, placeholder stars
+    experience/        Experience host, mode controls, debug overlays
+    three/             R3F sky engine + transition camera
+      sky/             Star field, waypoints, celestial camera, labels
   experience/
     transition/        Progress, input, config, visual derivation
+    sky/               Sky wheel / exit policy
   features/
     portfolio/         Projects window + project data
     about/             About window content
     contact/           Contact links + window content
-    astronomy/         Celestial helpers (future sky)
-    captures/          Capture helpers (future sky)
-  state/               desktop-store, experience-store, …
-  config/              site, env, desktop shortcuts/windows
+    astronomy/         Coordinates, catalogs, sky HUD
+    captures/          Capture helpers (future)
+  state/               desktop-store, experience-store, sky-runtime, …
+  config/              site, env, desktop, sky navigation/quality
   types/
   data/
   hooks/
@@ -66,7 +71,8 @@ public/assets/
 - Shortcuts: Projects, About, Contact (configured in `src/config/desktop.ts`)
 - Add projects in `src/features/portfolio/data/projects.ts`
 - Replace About/Contact placeholders in their feature `data/` files
-- Scroll / swipe (or **Explore the night sky**) enters the sky transition
+- Scroll / swipe (or **Explore the night sky**) enters the sky
+- In sky: drag to look, wheel to zoom (zoom out fully then scroll toward desktop to exit), tap waypoints or use the deep-sky list
 
 ## Static asset policy
 

@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 
+import type { SkyRenderQualityPreference } from "@/config/sky-quality";
 import type {
   CameraOwner,
   ExperienceMode,
@@ -20,6 +21,8 @@ interface ExperienceState {
   selectedCelestialObjectId: string | null;
   isAstronomySceneActive: boolean;
   reduceMotion: boolean;
+  /** User/developer sky quality preference (`auto` picks from device signals). */
+  skyRenderQualityPreference: SkyRenderQualityPreference;
   setMode: (mode: ExperienceMode) => void;
   applyLogicalSnapshot: (snapshot: {
     mode: ExperienceMode;
@@ -31,6 +34,7 @@ interface ExperienceState {
     progress: number;
   }) => void;
   setReduceMotion: (value: boolean) => void;
+  setSkyRenderQualityPreference: (value: SkyRenderQualityPreference) => void;
   /** Request sky via a11y / programmatic control (sets target progress). */
   requestEnterSky: () => void;
   /** Request portfolio via a11y / programmatic control. */
@@ -81,6 +85,7 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
   selectedCelestialObjectId: null,
   isAstronomySceneActive: false,
   reduceMotion: false,
+  skyRenderQualityPreference: "auto",
   setMode: (mode) =>
     set({
       mode,
@@ -98,6 +103,8 @@ export const useExperienceStore = create<ExperienceState>((set) => ({
       isAstronomySceneActive: isAstronomyActive(snapshot.mode),
     }),
   setReduceMotion: (value) => set({ reduceMotion: value }),
+  setSkyRenderQualityPreference: (value) =>
+    set({ skyRenderQualityPreference: value }),
   requestEnterSky: () => {
     enterSkyRequestHandlers.forEach((handler) => handler());
   },

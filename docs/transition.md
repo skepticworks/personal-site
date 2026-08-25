@@ -34,9 +34,11 @@ Tune sensitivities and phase windows in:
 | `useTransitionProgress.ts` | rAF loop + Zustand logical sync |
 | `useDesktopTransitionLayer.ts` | DOM transform / inert binding |
 
-## Camera handoff (for later sky nav)
+## Camera handoff (sky navigation)
 
 1. While `cameraOwner === "transition"`, only `TransitionCameraController` writes the camera.
 2. At progress `1`, `cameraOwner` becomes `"sky"`.
-3. Future controls should set `skyNavigationActiveRef.current = true` and write pose only then.
-4. On reverse transition, ownership returns to `"transition"` automatically.
+3. `CelestialCameraController` sets `skyNavigationActiveRef.current = true` and writes pose only then.
+4. On reverse transition, ownership returns to `"transition"` automatically; sky gestures/targeting stop.
+5. Wheel in sky: zoom FOV first; exit via wheel only at **max FOV** while scrolling toward the portfolio.
+   Explicit **Return to desktop** always works. Details: `docs/sky-engine.md`.

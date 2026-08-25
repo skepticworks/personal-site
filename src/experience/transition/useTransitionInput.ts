@@ -9,14 +9,19 @@ import {
   normalizeWheelDelta,
 } from "@/experience/transition/transition-progress";
 import { transitionRuntime } from "@/experience/transition/transition-runtime";
+import {
+  handleSkyWheelDelta,
+  normalizeSkyWheelDeltaY,
+} from "@/experience/sky/sky-wheel-policy";
 import { useExperienceStore } from "@/state/experience-store";
+import { resetSkyNavigationGestures } from "@/state/sky-runtime";
 
 /**
  * Scroll / trackpad / touch input → normalized transition progress.
  *
- * Owns wheel preventDefault only while the experience should consume scroll
- * (during transition, or at an endpoint when the gesture would leave that
- * endpoint). Does not permanently lock document scroll.
+ * Sky mode: wheel zooms first; exit-to-desktop only when FOV is max and the
+ * user continues scrolling toward the portfolio. Pointer drag is owned by
+ * the sky engine while `canInteractWithSky` — this hook skips those gestures.
  */
 export function useTransitionInput(
   rootRef: RefObject<HTMLElement | null>,
@@ -51,7 +56,26 @@ export function useTransitionInput(
     };
 
     const onWheel = (event: WheelEvent) => {
-      const canDesktop = useExperienceStore.getState().canInteractWithDesktop;
+      const state = useExperienceStore.getState();
+
+      // Sky owns wheel for zoom; may delegate exit-to-portfolio
+      if (state.canInteractWithSky && state.cameraOwner === "sky") {
+        const skyDelta = normalizeSkyWheelDeltaY(event);
+        const result = handleSkyWheelDelta(skyDelta);
+        if (result === "zoom") {
+          event.preventDefault();
+          return;
+        }
+        if (result === "exit-to-portfolio") {
+          event.preventDefault();
+          resetSkyNavigationGestures();
+          applyProgressDelta(normalizeWheelDelta(event));
+          return;
+        }
+        return;
+      }
+
+      const canDesktop = state.canInteractWithDesktop;
       if (canDesktop) {
         const target = event.target as HTMLElement | null;
         if (target?.closest(".desktop-window__body")) {
@@ -81,13 +105,18 @@ export function useTransitionInput(
     };
 
     const onPointerDown = (event: PointerEvent) => {
+      // Sky owns look-around drag; do not start transition gestures
+      if (useExperienceStore.getState().canInteractWithSky) {
+        return;
+      }
+
       if (event.pointerType === "mouse" && event.button !== 0) {
         return;
       }
       const target = event.target as HTMLElement | null;
       if (
         target?.closest(
-          ".desktop-shortcut, .desktop-window, .experience-mode-controls, button, a, input, textarea, select",
+          ".desktop-shortcut, .desktop-window, .experience-mode-controls, .sky-hud, button, a, input, textarea, select",
         )
       ) {
         return;
@@ -103,6 +132,10 @@ export function useTransitionInput(
     };
 
     const onPointerMove = (event: PointerEvent) => {
+      if (useExperienceStore.getState().canInteractWithSky) {
+        return;
+      }
+
       const touch = touchRef.current;
       if (!touch || !touch.active || touch.pointerId !== event.pointerId) {
         return;

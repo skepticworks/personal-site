@@ -19,8 +19,8 @@ function isPerspectiveCamera(camera: Camera): camera is PerspectiveCamera {
 /**
  * Applies transition-driven camera pose while `cameraOwner !== "sky"`.
  *
- * When ownership is `"sky"`, this controller stops writing so a future sky
- * navigation system can take over without fighting the transition.
+ * When ownership is `"sky"`, this controller stops writing so
+ * `CelestialCameraController` can navigate without fighting the transition.
  */
 export function TransitionCameraController() {
   const getCamera = useThree((state) => state.get);

@@ -5,7 +5,8 @@
 Dual-purpose site:
 
 1. Professional portfolio presented as a **desktop-style personal workspace** (DOM)
-2. Interactive astronomy experience (React Three Fiber / Three.js) — placeholder sky shell in Milestone 3; full Stellarium features later
+2. Interactive astronomy experience (React Three Fiber / Three.js) — interactive
+   celestial navigation engine (Milestone 4); full Stellarium features later
 
 Layers stay loosely coupled so either can evolve without rewriting the other.
 
@@ -16,13 +17,15 @@ Layers stay loosely coupled so either can evolve without rewriting the other.
 | `src/app` | Next.js routes, layouts, metadata |
 | `src/components/desktop` | Desktop shell, shortcuts, window chrome |
 | `src/components/experience` | Experience host, mode controls, transition debug overlay |
-| `src/components/three` | R3F sky shell, transition camera, placeholder starfield |
+| `src/components/three` | R3F sky engine, transition camera, star field, waypoints |
 | `src/experience/transition` | Progress model, input, config, visual derivation |
+| `src/experience/sky` | Sky wheel / input policy helpers |
 | `src/features/*` | Feature content (portfolio, about, contact, astronomy, captures) |
-| `src/types` | Domain models including `desktop.ts`, `experience.ts` |
+| `src/features/astronomy` | Coordinates, catalogs, DOM sky HUD pieces |
+| `src/types` | Domain models including `desktop.ts`, `experience.ts`, `astronomy.ts` |
 | `src/data` | Shared static / mock domain records |
-| `src/state` | Zustand stores + Three.js runtime refs |
-| `src/config` | Site, env, desktop shortcut / window definitions |
+| `src/state` | Zustand stores + Three.js / sky runtime refs |
+| `src/config` | Site, env, desktop, sky navigation / quality |
 | `src/hooks` | Shared hooks (`useX`) |
 | `src/lib` | Cross-cutting utilities (geometry helpers, formatting) |
 | `public/assets` | Optimized static assets only |
@@ -41,7 +44,8 @@ Layers stay loosely coupled so either can evolve without rewriting the other.
 
 **DOM layer** owns the desktop, windows, portfolio content, and accessibility.
 
-**R3F / Three.js layer** owns the night-sky shell (placeholder stars + atmosphere). It must not be required to use the portfolio.
+**R3F / Three.js layer** owns the night-sky engine (stars, waypoints, celestial
+camera). It must not be required to use the portfolio.
 
 `PortfolioExperience` always mounts both layers. Visibility and interaction are driven by normalized transition progress, not route changes.
 
@@ -66,7 +70,8 @@ Layers stay loosely coupled so either can evolve without rewriting the other.
 | `canInteractWithSky` | `progress ≈ 1` |
 | `cameraOwner` | `"none"` \| `"transition"` \| `"sky"` |
 | `interactionOwner` | `"desktop"` \| `"transition"` \| `"sky"` |
-| `selectedCelestialObjectId` | Future astronomy selection (preserved on return to desk) |
+| `selectedCelestialObjectId` | Deep-sky selection (preserved on return to desk) |
+| `skyRenderQualityPreference` | `auto` \| `low` \| `medium` \| `high` |
 | `reduceMotion` | Synced from `prefers-reduced-motion` |
 
 ### High-frequency animation state (not Zustand)
@@ -75,6 +80,7 @@ Layers stay loosely coupled so either can evolve without rewriting the other.
 | --- | --- |
 | `src/experience/transition/transition-runtime.ts` | `targetProgress`, `renderedProgress`, visual snapshot |
 | `src/state/three-runtime.ts` | Camera orientation ref for WebGL consumers |
+| `src/state/sky-runtime.ts` | Sky camera mode, FOV, hover, targeting (high-frequency) |
 
 ## Transition progress model
 
@@ -114,10 +120,13 @@ Input writes `targetProgress`. An rAF loop eases `renderedProgress` toward it (e
 ```text
 portfolio (progress 0):     cameraOwner = none
 transition:                 cameraOwner = transition  → TransitionCameraController writes
-sky (progress 1):           cameraOwner = sky         → future sky navigation writes
+sky (progress 1):           cameraOwner = sky         → CelestialCameraController writes
 ```
 
-**Rule for future milestones:** sky navigation must check `cameraOwner === "sky"` (and/or `skyNavigationActiveRef`) before mutating the camera. Never fight the transition controller mid-flight.
+**Rule:** sky navigation must check `cameraOwner === "sky"` (and sets
+`skyNavigationActiveRef`) before mutating the camera. Never fight the transition
+controller mid-flight. See `docs/sky-engine.md` for free / targeting / focused
+modes and wheel zoom vs exit policy.
 
 ## Interaction ownership
 
@@ -130,9 +139,8 @@ During transition:
 
 - Desktop layer gets `pointer-events: none` + `inert`
 - Window dragging releases capture when interaction is revoked
-- Sky canvas stays non-interactive until sky mode (Milestone 3 placeholder)
-
-Open desktop windows are **not** destroyed on sky entry; Zustand preserves geometry and open flags.
+- Sky canvas receives pointer events only while `canInteractWithSky`
+- Open desktop windows are **not** destroyed on sky entry; Zustand preserves geometry and open flags.
 
 ## Scroll / wheel / touch
 
@@ -230,10 +238,10 @@ Edit `src/features/portfolio/data/projects.ts`. The Projects window reads that l
 | Portfolio | `src/types/portfolio.ts` | `src/features/portfolio/data/projects.ts` |
 | About | — | `src/features/about/data/about-content.ts` |
 | Contact | — | `src/features/contact/data/contact-links.ts` |
-| Astronomy | `src/types/astronomy.ts` | `src/data/mock-celestial-objects.ts` |
+| Astronomy | `src/types/astronomy.ts` | `src/features/astronomy/data/deep-sky-objects.ts`, `stars.ts` |
 | Captures | `src/types/captures.ts` | `src/data/mock-captures.ts` |
 
-Astronomy coordinates: RA in **hours** `[0,24)`, Dec in **degrees** `[-90,90]`, J2000/ICRS unless noted.
+Astronomy coordinates: RA in **hours** `[0,24)`, Dec in **degrees** `[-90,90]`, J2000/ICRS unless noted. Full sky conventions: `docs/sky-engine.md`.
 
 ## Accessibility assumptions
 
@@ -242,6 +250,7 @@ Astronomy coordinates: RA in **hours** `[0,24)`, Dec in **degrees** `[-90,90]`, 
 - Close controls have accessible names; focus rings are visible
 - Scroll hint is decorative (`aria-hidden`); opacity follows transition progress
 - Critical portfolio content remains in the DOM, not only in WebGL
+- Sky selection has DOM readout + deep-sky list; enter/leave sky is keyboard operable
 
 ## Environment model
 
@@ -249,12 +258,13 @@ Astronomy coordinates: RA in **hours** `[0,24)`, Dec in **degrees** `[-90,90]`, 
 
 ## Future architectural constraints
 
-- DOM / 3D separation — replace `PlaceholderStarfield` without rewriting scroll/progress/ownership
-- Typed astronomy coordinates
+- DOM / 3D separation — swap sky renderers without rewriting scroll/progress/ownership
+- Typed astronomy coordinates + documented sphere orientation (`docs/sky-engine.md`)
 - Lightweight optimized astrophotography assets only
 - No hosting of original photography masters
-- Accessibility of portfolio information outside WebGL
+- Accessibility of portfolio / selection information outside WebGL
 - Isolation of high-frequency Three.js state from React UI state
 - Sky navigation must honor `cameraOwner === "sky"` before taking the camera
+- Captures reference deep-sky objects via stable `targetObjectId`
 - No separate `/desktop` `/sky` routes solely for experience mode
 - Desktop must not permanently own the viewport — experience modes remain the integration seam

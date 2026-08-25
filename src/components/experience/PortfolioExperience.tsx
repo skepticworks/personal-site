@@ -4,12 +4,14 @@ import { useRef } from "react";
 
 import { Desktop } from "@/components/desktop/Desktop";
 import { ExperienceModeControls } from "@/components/experience/ExperienceModeControls";
+import { SkyDebugOverlay } from "@/components/experience/SkyDebugOverlay";
 import { TransitionDebugOverlay } from "@/components/experience/TransitionDebugOverlay";
 import { SkyExperienceHost } from "@/components/three/SkyExperienceHost";
 import { useDesktopTransitionLayer } from "@/experience/transition/useDesktopTransitionLayer";
 import { useTransitionInput } from "@/experience/transition/useTransitionInput";
 import { useTransitionProgressLoop } from "@/experience/transition/useTransitionProgress";
 import { useReducedMotionSync } from "@/hooks/useReducedMotionSync";
+import { useSkyKeyboardShortcuts } from "@/hooks/useSkyKeyboardShortcuts";
 import { useExperienceStore } from "@/state/experience-store";
 
 /**
@@ -28,6 +30,7 @@ export function PortfolioExperience() {
   useTransitionProgressLoop();
   useTransitionInput(rootRef);
   useDesktopTransitionLayer(desktopRef);
+  useSkyKeyboardShortcuts();
 
   return (
     <div ref={rootRef} className="experience-root" data-mode={mode}>
@@ -39,6 +42,7 @@ export function PortfolioExperience() {
 
       <ExperienceModeControls />
       <TransitionDebugOverlay />
+      <SkyDebugOverlay />
     </div>
   );
 }

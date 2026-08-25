@@ -1,102 +1,81 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
-import type { Mesh } from "three";
-import { BackSide, Color } from "three";
+import { Canvas } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { PlaceholderStarfield } from "@/components/three/PlaceholderStarfield";
 import { TransitionCameraController } from "@/components/three/TransitionCameraController";
+import { CelestialCameraController } from "@/components/three/sky/CelestialCameraController";
+import { DeepSkyWaypoints } from "@/components/three/sky/DeepSkyWaypoints";
+import { EquatorialDebugGuides } from "@/components/three/sky/EquatorialDebugGuides";
+import { SkyEnvironment } from "@/components/three/sky/SkyEnvironment";
+import { SkyPointerControls } from "@/components/three/sky/SkyPointerControls";
+import { StarField } from "@/components/three/sky/StarField";
+import { WaypointLabels } from "@/components/three/sky/WaypointLabels";
+import { resolveSkyQualitySettings } from "@/config/sky-quality";
 import {
   subscribeTransitionVisual,
   transitionRuntime,
   type TransitionVisualSnapshot,
 } from "@/experience/transition/transition-runtime";
-
-function SkyAtmosphere() {
-  const meshRef = useRef<Mesh>(null);
-  const visualRef = useRef(transitionRuntime.visual);
-
-  useEffect(() => {
-    return subscribeTransitionVisual((snapshot) => {
-      visualRef.current = snapshot;
-    });
-  }, []);
-
-  useFrame(() => {
-    const mesh = meshRef.current;
-    if (!mesh) {
-      return;
-    }
-    const material = mesh.material;
-    if ("opacity" in material) {
-      material.opacity = 0.35 + visualRef.current.environmentDarken * 0.45;
-    }
-  });
-
-  return (
-    <mesh ref={meshRef} scale={[-1, 1, 1]}>
-      <sphereGeometry args={[90, 32, 24]} />
-      <meshBasicMaterial
-        color={new Color("#050b14")}
-        side={BackSide}
-        transparent
-        depthWrite={false}
-        opacity={0.4}
-      />
-    </mesh>
-  );
-}
-
-function HorizonGlow() {
-  const meshRef = useRef<Mesh>(null);
-  const visualRef = useRef(transitionRuntime.visual);
-
-  useEffect(() => {
-    return subscribeTransitionVisual((snapshot) => {
-      visualRef.current = snapshot;
-    });
-  }, []);
-
-  useFrame(() => {
-    const mesh = meshRef.current;
-    if (!mesh) {
-      return;
-    }
-    const fade = 1 - visualRef.current.environmentDarken;
-    mesh.visible = fade > 0.02;
-    const material = mesh.material;
-    if ("opacity" in material) {
-      material.opacity = fade * 0.55;
-    }
-  });
-
-  return (
-    <mesh ref={meshRef} position={[0, -2, -20]} rotation={[-0.15, 0, 0]}>
-      <planeGeometry args={[80, 24]} />
-      <meshBasicMaterial
-        color={new Color("#1a3340")}
-        transparent
-        depthWrite={false}
-        opacity={0.5}
-      />
-    </mesh>
-  );
-}
+import { useExperienceStore } from "@/state/experience-store";
+import { skyRuntime } from "@/state/sky-runtime";
 
 interface SkyExperienceProps {
   className?: string;
 }
 
 /**
- * Placeholder night-sky shell for validating the desk → sky transition.
+ * Interactive celestial sky engine (R3F).
  *
- * Intentionally free of catalog / constellation / search logic so later
- * astronomy milestones can replace the renderer without touching scroll,
- * progress, or ownership systems.
+ * Owns WebGL rendering + sky camera when `cameraOwner === "sky"`.
+ * Logical selection / mode state stays in the experience store.
  */
 export function SkyExperience({ className }: SkyExperienceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const labelHostRef = useRef<HTMLDivElement>(null);
+  const [labelHost, setLabelHost] = useState<HTMLElement | null>(null);
+  const canInteractWithSky = useExperienceStore(
+    (state) => state.canInteractWithSky,
+  );
+  const skyRenderQualityPreference = useExperienceStore(
+    (state) => state.skyRenderQualityPreference,
+  );
+
+  const quality = useMemo(() => {
+    const width = typeof window !== "undefined" ? window.innerWidth : 1280;
+    const height = typeof window !== "undefined" ? window.innerHeight : 800;
+    const dpr =
+      typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+    const pointerCoarse =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(pointer: coarse)").matches;
+
+    return resolveSkyQualitySettings(
+      skyRenderQualityPreference,
+      {
+        width,
+        height,
+        devicePixelRatio: dpr,
+        hardwareConcurrency:
+          typeof navigator !== "undefined"
+            ? navigator.hardwareConcurrency
+            : 4,
+        maxTouchPoints:
+          typeof navigator !== "undefined" ? navigator.maxTouchPoints : 0,
+        pointerCoarse,
+      },
+      { allowDevGrid: process.env.NODE_ENV === "development" },
+    );
+  }, [skyRenderQualityPreference]);
+
+  useEffect(() => {
+    skyRuntime.quality = quality.quality;
+  }, [quality.quality]);
+
+  useEffect(() => {
+    setLabelHost(labelHostRef.current);
+  }, []);
 
   useEffect(() => {
     return subscribeTransitionVisual((snapshot: TransitionVisualSnapshot) => {
@@ -109,6 +88,17 @@ export function SkyExperience({ className }: SkyExperienceProps) {
     });
   }, []);
 
+  const touchFriendly =
+    quality.quality === "low" ||
+    (typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(pointer: coarse)").matches);
+
+  const enableHover =
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
   return (
     <div
       ref={containerRef}
@@ -117,29 +107,42 @@ export function SkyExperience({ className }: SkyExperienceProps) {
       style={{
         opacity: 0,
         visibility: "hidden",
-        pointerEvents: "none",
+        pointerEvents: canInteractWithSky ? "auto" : "none",
       }}
     >
+      <div ref={labelHostRef} className="sky-label-host" />
       <Canvas
-        dpr={[1, 1.75]}
+        dpr={quality.dpr}
         gl={{
-          antialias: true,
+          antialias: quality.antialias,
           alpha: true,
           powerPreference: "high-performance",
         }}
         camera={{
           fov: transitionRuntime.visual.cameraFov,
           near: 0.1,
-          far: 200,
+          far: 250,
           position: [0, 0, 0.15],
         }}
         style={{ width: "100%", height: "100%", display: "block" }}
       >
         <color attach="background" args={["#03070e"]} />
         <TransitionCameraController />
-        <SkyAtmosphere />
-        <HorizonGlow />
-        <PlaceholderStarfield />
+        <CelestialCameraController />
+        <SkyEnvironment />
+        <StarField starCount={quality.starCount} />
+        <DeepSkyWaypoints touchFriendly={touchFriendly} />
+        <SkyPointerControls
+          active={canInteractWithSky}
+          enableHover={enableHover}
+        />
+        <WaypointLabels
+          maxOrdinaryLabels={quality.maxOrdinaryLabels}
+          host={labelHost}
+        />
+        {process.env.NODE_ENV === "development" && quality.showDevGrid ? (
+          <EquatorialDebugGuides />
+        ) : null}
       </Canvas>
     </div>
   );
