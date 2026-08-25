@@ -59,6 +59,7 @@ export function SkyDebugOverlay() {
       </div>
       <div>FOV {skyRuntime.fov.toFixed(1)}°</div>
       <div>selected: {selectedId ?? "none"}</div>
+      <div>pending focus: {skyRuntime.pendingFocusObjectId ?? "none"}</div>
       <div>hover: {skyRuntime.hoveredObjectId ?? "none"}</div>
       <div>
         quality: {skyRuntime.quality} ({qualityPref})

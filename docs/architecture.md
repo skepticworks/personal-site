@@ -21,7 +21,7 @@ Layers stay loosely coupled so either can evolve without rewriting the other.
 | `src/experience/transition` | Progress model, input, config, visual derivation |
 | `src/experience/sky` | Sky wheel / input policy helpers |
 | `src/features/*` | Feature content (portfolio, about, contact, astronomy, captures) |
-| `src/features/astronomy` | Coordinates, catalogs, DOM sky HUD pieces |
+| `src/features/astronomy` | Coordinates, catalogs, object panel / search, sky DOM UI |
 | `src/types` | Domain models including `desktop.ts`, `experience.ts`, `astronomy.ts` |
 | `src/data` | Shared static / mock domain records |
 | `src/state` | Zustand stores + Three.js / sky runtime refs |

@@ -66,6 +66,8 @@ export function CelestialCameraController() {
         skyNavigationActiveRef.current = false;
         skyRuntime.cameraMode = "free";
         skyRuntime.targetingObjectId = null;
+        // Do not resume targeting when the user later re-enters the sky.
+        skyRuntime.pendingFocusObjectId = null;
         skyRuntime.isDragging = false;
         targetQuat.current = null;
       }
@@ -80,6 +82,19 @@ export function CelestialCameraController() {
       applySkyFov(skyRuntime.fov || snap.fov || SKY_NAVIGATION.defaultFov);
       skyNavigationActiveRef.current = true;
       wasSkyOwner.current = true;
+      // Deep-link / pre-sky selection: focus once the controller owns the camera
+      if (skyRuntime.pendingFocusObjectId) {
+        const pendingId = skyRuntime.pendingFocusObjectId;
+        const object = getDeepSkyObjectById(pendingId);
+        if (object) {
+          targetQuat.current = getLookQuaternionForCelestialTarget(
+            object.coordinates,
+          );
+          skyRuntime.targetingObjectId = pendingId;
+          skyRuntime.cameraMode = "targeting";
+          skyRuntime.pendingFocusObjectId = null;
+        }
+      }
     }
 
     // Targeting interpolation
@@ -137,10 +152,16 @@ export function CelestialCameraController() {
       if (!object) {
         return;
       }
+      // Only animate while sky owns the camera; otherwise keep pending.
+      if (useExperienceStore.getState().cameraOwner !== "sky") {
+        skyRuntime.pendingFocusObjectId = objectId;
+        return;
+      }
       targetQuat.current = getLookQuaternionForCelestialTarget(
         object.coordinates,
       );
       skyRuntime.targetingObjectId = objectId;
+      skyRuntime.pendingFocusObjectId = null;
       skyRuntime.cameraMode = "targeting";
       // Soft FOV nudge toward targeting FOV
       if (!useExperienceStore.getState().reduceMotion) {
@@ -153,10 +174,22 @@ export function CelestialCameraController() {
     cancelSkyTargetingRef.current = () => {
       targetQuat.current = null;
       skyRuntime.targetingObjectId = null;
-      if (skyRuntime.cameraMode === "targeting") {
+      skyRuntime.pendingFocusObjectId = null;
+      if (
+        skyRuntime.cameraMode === "targeting" ||
+        skyRuntime.cameraMode === "focused"
+      ) {
         skyRuntime.cameraMode = "free";
       }
     };
+
+    // Flush any focus queued before the controller mounted
+    if (
+      skyRuntime.pendingFocusObjectId &&
+      useExperienceStore.getState().cameraOwner === "sky"
+    ) {
+      beginSkyTargetingRef.current(skyRuntime.pendingFocusObjectId);
+    }
 
     return () => {
       beginSkyTargetingRef.current = null;

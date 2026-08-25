@@ -16,13 +16,13 @@ export const mockCaptures: AstrophotographyCapture[] = [
       src: "/assets/astrophotography/previews/orion-nebula.webp",
       width: 1600,
       height: 1067,
-      alt: "Preview of the Orion Nebula",
+      alt: "My photograph of the Orion Nebula",
     },
     thumbnail: {
       src: "/assets/astrophotography/thumbnails/orion-nebula.webp",
       width: 480,
       height: 320,
-      alt: "Thumbnail of the Orion Nebula",
+      alt: "Thumbnail of my photograph of the Orion Nebula",
     },
     capturedAt: {
       start: "2025-12-12",
@@ -69,13 +69,13 @@ export const mockCaptures: AstrophotographyCapture[] = [
       src: "/assets/astrophotography/previews/andromeda.webp",
       width: 1600,
       height: 900,
-      alt: "Preview of the Andromeda Galaxy",
+      alt: "My photograph of the Andromeda Galaxy",
     },
     thumbnail: {
       src: "/assets/astrophotography/thumbnails/andromeda.webp",
       width: 480,
       height: 270,
-      alt: "Thumbnail of the Andromeda Galaxy",
+      alt: "Thumbnail of my photograph of the Andromeda Galaxy",
     },
     capturedAt: {
       start: "2025-10-05",

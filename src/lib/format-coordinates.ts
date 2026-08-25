@@ -1,11 +1,15 @@
 import type { EquatorialCoordinates } from "@/types/astronomy";
+import {
+  formatDeclination,
+  formatRightAscension,
+} from "@/features/astronomy/formatting/astronomyFormatting";
 
-/** Format equatorial coordinates for DOM display. */
+/**
+ * Compact equatorial readout for debug / legacy HUD consumers.
+ * Prefer `formatRightAscension` / `formatDeclination` in the object panel.
+ */
 export function formatEquatorialCoordinates(
   coordinates: EquatorialCoordinates,
-  fractionDigits = 3,
 ): string {
-  const ra = coordinates.rightAscensionHours.toFixed(fractionDigits);
-  const dec = coordinates.declinationDegrees.toFixed(fractionDigits);
-  return `RA ${ra} h, Dec ${dec}°`;
+  return `RA ${formatRightAscension(coordinates.rightAscensionHours)}, Dec ${formatDeclination(coordinates.declinationDegrees)}`;
 }

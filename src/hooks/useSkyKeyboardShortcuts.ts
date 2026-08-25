@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 
-import { cancelSkyObjectTargeting } from "@/components/three/sky/CelestialCameraController";
+import { clearCelestialObjectSelection } from "@/features/astronomy/actions/selectCelestialObject";
 import { useExperienceStore } from "@/state/experience-store";
 
 /**
  * Escape cancels targeting / clears selection while sky is interactive,
- * without intercepting keystrokes in inputs.
+ * without intercepting keystrokes in inputs or search.
  */
 export function useSkyKeyboardShortcuts(): void {
   useEffect(() => {
@@ -23,9 +23,8 @@ export function useSkyKeyboardShortcuts(): void {
       if (!state.canInteractWithSky) {
         return;
       }
-      cancelSkyObjectTargeting();
       if (state.selectedCelestialObjectId) {
-        state.selectCelestialObject(null);
+        clearCelestialObjectSelection();
       }
     };
 

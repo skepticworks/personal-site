@@ -6,10 +6,10 @@ import { Raycaster, Vector2 } from "three";
 
 import {
   applySkyLookDelta,
-  beginSkyObjectTargeting,
   cancelSkyObjectTargeting,
 } from "@/components/three/sky/CelestialCameraController";
 import { SKY_NAVIGATION } from "@/config/sky-navigation";
+import { selectCelestialObject } from "@/features/astronomy/actions/selectCelestialObject";
 import { useExperienceStore } from "@/state/experience-store";
 import { notifySkyUi, skyRuntime } from "@/state/sky-runtime";
 
@@ -170,8 +170,7 @@ export function SkyPointerControls({
       skyRuntime.isDragging = false;
 
       if (!wasDrag && hitId) {
-        useExperienceStore.getState().selectCelestialObject(hitId);
-        beginSkyObjectTargeting(hitId);
+        selectCelestialObject(hitId, { focusCamera: true, updateUrl: true });
         notifySkyUi();
       }
 

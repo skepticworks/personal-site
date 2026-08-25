@@ -1,14 +1,12 @@
 "use client";
 
-import { DeepSkyObjectList } from "@/features/astronomy/components/DeepSkyObjectList";
-import { SelectedObjectReadout } from "@/features/astronomy/components/SelectedObjectReadout";
 import type { SkyRenderQualityPreference } from "@/config/sky-quality";
 import { useExperienceStore } from "@/state/experience-store";
 import { resetSkyNavigationGestures } from "@/state/sky-runtime";
 
 /**
- * Keyboard-accessible enter/leave controls + sky HUD foundations.
- * Complements scroll/swipe so motion is never the only path between modes.
+ * Keyboard-accessible enter/leave controls + sky quality preference.
+ * Object inspection / search live in `DeepSkyObjectInterface`.
  */
 export function ExperienceModeControls() {
   const mode = useExperienceStore((state) => state.mode);
@@ -33,8 +31,6 @@ export function ExperienceModeControls() {
     <div className="experience-mode-controls">
       {showSkyHud ? (
         <div className="sky-hud">
-          <SelectedObjectReadout />
-          <DeepSkyObjectList />
           <label className="sky-hud__quality">
             <span className="sky-hud__quality-label">Sky quality</span>
             <select

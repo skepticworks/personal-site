@@ -31,6 +31,11 @@ export interface SkyRuntimeState {
    */
   zoomAtMaxFov: boolean;
   zoomAtMinFov: boolean;
+  /**
+   * Object to focus once the sky camera controller is ready.
+   * Used for deep links / selection before `cameraOwner === "sky"`.
+   */
+  pendingFocusObjectId: string | null;
 }
 
 export const skyRuntime: SkyRuntimeState = {
@@ -44,6 +49,7 @@ export const skyRuntime: SkyRuntimeState = {
   visibleLabelCount: 0,
   zoomAtMaxFov: false,
   zoomAtMinFov: false,
+  pendingFocusObjectId: null,
 };
 
 /** Listeners for discrete sky UI signals (not per-frame). */
@@ -65,6 +71,7 @@ export function resetSkyNavigationGestures(): void {
   skyRuntime.isDragging = false;
   skyRuntime.cameraMode = "free";
   skyRuntime.targetingObjectId = null;
+  skyRuntime.pendingFocusObjectId = null;
   skyRuntime.hoveredObjectId = null;
   notifySkyUi();
 }

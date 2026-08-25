@@ -12,6 +12,7 @@ import { transitionRuntime } from "@/experience/transition/transition-runtime";
 import {
   handleSkyWheelDelta,
   normalizeSkyWheelDeltaY,
+  resetSkyWheelExitState,
 } from "@/experience/sky/sky-wheel-policy";
 import { useExperienceStore } from "@/state/experience-store";
 import { resetSkyNavigationGestures } from "@/state/sky-runtime";
@@ -19,9 +20,12 @@ import { resetSkyNavigationGestures } from "@/state/sky-runtime";
 /**
  * Scroll / trackpad / touch input → normalized transition progress.
  *
- * Sky mode: wheel zooms first; exit-to-desktop only when FOV is max and the
- * user continues scrolling toward the portfolio. Pointer drag is owned by
- * the sky engine while `canInteractWithSky` — this hook skips those gestures.
+ * Intentional transition policy:
+ * - Desktop windows never chain into the sky transition (no edge overscroll).
+ * - Empty desktop / non-window areas still drive progress via wheel.
+ * - Sky: wheel zooms FOV first; exit only via intentional max-FOV overscroll
+ *   (see sky-wheel-policy) or explicit "Return to desktop".
+ * - Pointer drag is owned by the sky engine while `canInteractWithSky`.
  */
 export function useTransitionInput(
   rootRef: RefObject<HTMLElement | null>,
@@ -57,8 +61,18 @@ export function useTransitionInput(
 
     const onWheel = (event: WheelEvent) => {
       const state = useExperienceStore.getState();
+      const target = event.target as HTMLElement | null;
 
-      // Sky owns wheel for zoom; may delegate exit-to-portfolio
+      // Object panel / search / mode controls own their own scrolling.
+      if (
+        target?.closest(
+          ".dso-interface, .experience-mode-controls, .sky-hud",
+        )
+      ) {
+        return;
+      }
+
+      // Sky owns wheel for zoom; may delegate intentional exit-to-portfolio.
       if (state.canInteractWithSky && state.cameraOwner === "sky") {
         const skyDelta = normalizeSkyWheelDeltaY(event);
         const result = handleSkyWheelDelta(skyDelta);
@@ -68,32 +82,19 @@ export function useTransitionInput(
         }
         if (result === "exit-to-portfolio") {
           event.preventDefault();
+          resetSkyWheelExitState();
           resetSkyNavigationGestures();
           applyProgressDelta(normalizeWheelDelta(event));
           return;
         }
+        // Edge settle / insufficient overscroll — do not start a transition.
+        event.preventDefault();
         return;
       }
 
-      const canDesktop = state.canInteractWithDesktop;
-      if (canDesktop) {
-        const target = event.target as HTMLElement | null;
-        if (target?.closest(".desktop-window__body")) {
-          const body = target.closest(
-            ".desktop-window__body",
-          ) as HTMLElement | null;
-          if (body && body.scrollHeight > body.clientHeight + 1) {
-            const atTop = body.scrollTop <= 0;
-            const atBottom =
-              body.scrollTop + body.clientHeight >= body.scrollHeight - 1;
-            if (
-              (event.deltaY < 0 && !atTop) ||
-              (event.deltaY > 0 && !atBottom)
-            ) {
-              return;
-            }
-          }
-        }
+      // Portfolio windows fully own wheel — never chain into explore mode.
+      if (state.canInteractWithDesktop && target?.closest(".desktop-window")) {
+        return;
       }
 
       if (!shouldConsumeWheel(event.deltaY)) {
@@ -116,7 +117,7 @@ export function useTransitionInput(
       const target = event.target as HTMLElement | null;
       if (
         target?.closest(
-          ".desktop-shortcut, .desktop-window, .experience-mode-controls, .sky-hud, button, a, input, textarea, select",
+          ".desktop-shortcut, .desktop-window, .experience-mode-controls, .sky-hud, .dso-interface, button, a, input, textarea, select",
         )
       ) {
         return;

@@ -73,18 +73,34 @@ where practical.
 Live camera pose stays in Three.js + `skyRuntime` / `cameraOrientationRef`.
 Do **not** write per-frame quaternions into Zustand.
 
+## Object inspection (Milestone 5)
+
+DOM panel / search / deep links sit on top of this engine. Selection always goes
+through `selectCelestialObject()` → `selectedCelestialObjectId` → optional
+`pendingFocusObjectId` → `beginSkyObjectTargeting`. See `docs/object-interface.md`.
+
+Do not wire the Next.js router directly to camera quaternions.
+
 ## Navigation & input precedence
 
 ```text
 waypoint tap (movement < threshold) → select + target
 pointer drag                        → free look (cancels targeting)
-wheel / trackpad                    → FOV zoom
-wheel at max FOV + toward portfolio → transition-to-desktop
+wheel / trackpad                    → FOV zoom (always when FOV can move)
+wheel at max FOV + continued zoom-out
+  after settle + overscroll         → transition-to-desktop (intentional)
 "Return to desktop" / a11y          → transition-to-desktop
 Escape                              → cancel targeting / clear selection
 ```
 
 Zoom limits: `SKY_NAVIGATION.minFov` … `maxFov`.
+
+Scroll-up from max FOV always zooms in — it does **not** exit. Exit overscroll
+tuning: `SKY_EXIT_EDGE_SETTLE_MS` / `SKY_EXIT_OVERSCROLL_THRESHOLD` in
+`sky-wheel-policy.ts`.
+
+Desktop portfolio windows never chain wheel into the sky transition; only empty
+desktop areas (or the explicit explore control) start progress from progress 0.
 
 ## Deep-sky objects & waypoints
 

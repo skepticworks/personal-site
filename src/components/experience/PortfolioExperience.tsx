@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef } from "react";
+import { Suspense, useRef } from "react";
 
 import { Desktop } from "@/components/desktop/Desktop";
 import { ExperienceModeControls } from "@/components/experience/ExperienceModeControls";
 import { SkyDebugOverlay } from "@/components/experience/SkyDebugOverlay";
 import { TransitionDebugOverlay } from "@/components/experience/TransitionDebugOverlay";
 import { SkyExperienceHost } from "@/components/three/SkyExperienceHost";
+import { DeepSkyObjectInterface } from "@/features/astronomy/components/DeepSkyObjectInterface";
+import { useSelectedObjectUrlSync } from "@/features/astronomy/hooks/useSelectedObjectUrlSync";
 import { useDesktopTransitionLayer } from "@/experience/transition/useDesktopTransitionLayer";
 import { useTransitionInput } from "@/experience/transition/useTransitionInput";
 import { useTransitionProgressLoop } from "@/experience/transition/useTransitionProgress";
@@ -40,9 +42,18 @@ export function PortfolioExperience() {
         <Desktop />
       </div>
 
+      <Suspense fallback={null}>
+        <ObjectUrlSync />
+      </Suspense>
+      <DeepSkyObjectInterface />
       <ExperienceModeControls />
       <TransitionDebugOverlay />
       <SkyDebugOverlay />
     </div>
   );
+}
+
+function ObjectUrlSync() {
+  useSelectedObjectUrlSync();
+  return null;
 }

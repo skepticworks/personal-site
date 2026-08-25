@@ -2,7 +2,7 @@
 
 Interactive personal workspace combining a professional software portfolio with an astronomy / astrophotography experience.
 
-The landing experience is a full-screen **desktop-style portfolio**. Scrolling or swiping transitions into an **interactive celestial sky** (Milestone 4) with deep-sky waypoints and camera targeting. Full Stellarium-style catalogs come later.
+The landing experience is a full-screen **desktop-style portfolio**. Scrolling or swiping transitions into an **interactive celestial sky** with deep-sky waypoints, object search, inspection panel, and camera targeting.
 
 ## Technology stack
 
@@ -38,7 +38,9 @@ Open [http://localhost:3000](http://localhost:3000).
 - [docs/desktop.md](docs/desktop.md) — window system, shortcuts, responsive notes
 - [docs/transition.md](docs/transition.md) — progress model, config, camera handoff
 - [docs/sky-engine.md](docs/sky-engine.md) — celestial coordinates, navigation, waypoints, quality
+- [docs/object-interface.md](docs/object-interface.md) — object panel, search, deep links
 - [docs/assets.md](docs/assets.md) — web-derivative asset policy
+- [docs/reference-images.md](docs/reference-images.md) — third-party reference imagery
 
 ```text
 src/
@@ -55,8 +57,8 @@ src/
     portfolio/         Projects window + project data
     about/             About window content
     contact/           Contact links + window content
-    astronomy/         Coordinates, catalogs, sky HUD
-    captures/          Capture helpers (future)
+    astronomy/         Coordinates, catalogs, object panel / search
+    captures/          Capture helpers + selectors
   state/               desktop-store, experience-store, sky-runtime, …
   config/              site, env, desktop, sky navigation/quality
   types/
@@ -72,7 +74,7 @@ public/assets/
 - Add projects in `src/features/portfolio/data/projects.ts`
 - Replace About/Contact placeholders in their feature `data/` files
 - Scroll / swipe (or **Explore the night sky**) enters the sky
-- In sky: drag to look, wheel to zoom (zoom out fully then scroll toward desktop to exit), tap waypoints or use the deep-sky list
+- In sky: drag to look, wheel to zoom (zoom out fully then scroll toward desktop to exit), tap waypoints or search (`/?object=andromeda-galaxy` deep links supported)
 
 ## Static asset policy
 

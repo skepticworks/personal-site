@@ -40,5 +40,7 @@ Tune sensitivities and phase windows in:
 2. At progress `1`, `cameraOwner` becomes `"sky"`.
 3. `CelestialCameraController` sets `skyNavigationActiveRef.current = true` and writes pose only then.
 4. On reverse transition, ownership returns to `"transition"` automatically; sky gestures/targeting stop.
-5. Wheel in sky: zoom FOV first; exit via wheel only at **max FOV** while scrolling toward the portfolio.
+5. Wheel in sky: **FOV zoom first**. Exit via wheel only after staying at **max
+   FOV**, briefly settling, then continuing to scroll **zoom-out** (down) past an
+   overscroll threshold. Zooming back in from max never starts a transition.
    Explicit **Return to desktop** always works. Details: `docs/sky-engine.md`.
