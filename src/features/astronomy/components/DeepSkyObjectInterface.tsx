@@ -5,8 +5,7 @@ import { DeepSkyObjectSheet } from "@/features/astronomy/components/DeepSkyObjec
 import { DeepSkySearch } from "@/features/astronomy/components/DeepSkySearch";
 import { getObjectById } from "@/features/astronomy/selectors/objectSelectors";
 import { formatCatalogIdentifier } from "@/features/astronomy/formatting/astronomyFormatting";
-import { MOBILE_MEDIA_QUERY } from "@/experience/transition/transition-config";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useViewportMode } from "@/hooks/useViewportMode";
 import { useExperienceStore } from "@/state/experience-store";
 
 /**
@@ -21,7 +20,7 @@ export function DeepSkyObjectInterface() {
     (state) => state.canInteractWithSky,
   );
   const mode = useExperienceStore((state) => state.mode);
-  const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
+  const { useMobileSheets } = useViewportMode();
 
   const showSkyUi = canInteractWithSky || mode === "sky";
   if (!showSkyUi) {
@@ -40,7 +39,7 @@ export function DeepSkyObjectInterface() {
 
       {object ? (
         <div className="dso-interface__inspect">
-          {isMobile ? (
+          {useMobileSheets ? (
             <DeepSkyObjectSheet key={object.id} object={object} />
           ) : (
             <DeepSkyObjectPanel object={object} />

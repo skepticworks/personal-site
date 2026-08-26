@@ -51,6 +51,7 @@ export function CaptureSwitcher({
               alt=""
               width={thumb.width}
               height={thumb.height}
+              sizes="4.5rem"
               loading="lazy"
               decoding="async"
             />

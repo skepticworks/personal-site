@@ -68,6 +68,13 @@ export function DeepSkyObjectDetails({
           {object.commonName}
         </h2>
         <DeepSkyCatalogIds object={object} />
+        {photographed ? (
+          <p className="dso-details__photo-flag">Photographed by me</p>
+        ) : object.referenceImage ? (
+          <p className="dso-details__photo-flag dso-details__photo-flag--reference">
+            Reference imagery
+          </p>
+        ) : null}
       </header>
 
       <DeepSkyObjectMetadata object={object} />

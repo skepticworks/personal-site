@@ -82,19 +82,19 @@ export const TRANSITION_CONFIG: TransitionConfig = {
   cameraEndFov: 68,
   cameraStartY: 0,
   cameraEndY: 0.35,
-  desktopExitRotateXDeg: -68,
-  desktopExitTranslateYPx: 140,
-  desktopExitScale: 0.88,
+  desktopExitRotateXDeg: -62,
+  desktopExitTranslateYPx: 120,
+  desktopExitScale: 0.9,
   desktopPerspectivePx: 1400,
   phases: {
-    desktopStableEnd: 0.12,
-    desktopExitStart: 0.1,
-    desktopExitEnd: 0.72,
-    cameraPanStart: 0.15,
-    cameraPanEnd: 0.88,
-    starsStart: 0.28,
-    starsEnd: 1,
-    skySettleStart: 0.82,
+    desktopStableEnd: 0.1,
+    desktopExitStart: 0.08,
+    desktopExitEnd: 0.62,
+    cameraPanStart: 0.12,
+    cameraPanEnd: 0.82,
+    starsStart: 0.22,
+    starsEnd: 0.95,
+    skySettleStart: 0.78,
   },
   mobile: {
     wheelSensitivityScale: 1.15,
@@ -103,4 +103,4 @@ export const TRANSITION_CONFIG: TransitionConfig = {
   },
 };
 
-export const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
+export { MOBILE_MEDIA_QUERY } from "@/config/breakpoints";

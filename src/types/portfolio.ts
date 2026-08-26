@@ -27,6 +27,8 @@ export interface PortfolioProject {
   links: ProjectLinks;
   images: WebImageAsset[];
   featured: boolean;
+  /** Lower sorts first in project lists when not using date ordering. */
+  sortOrder?: number;
   startedAt: string;
   updatedAt?: string;
   /** Optional link to related astrophotography capture IDs. */

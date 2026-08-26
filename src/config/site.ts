@@ -2,9 +2,9 @@
  * Site-level constants that are safe to import from client or server code.
  */
 export const siteConfig = {
-  name: "Personal Portfolio & Observatory",
-  shortName: "Observatory",
+  name: "Tyler Matthews",
+  shortName: "Tyler Matthews",
   description:
-    "An interactive personal workspace for software projects and astrophotography exploration.",
+    "Computer Science graduate building backend systems, data pipelines, and an interactive astronomy portfolio.",
   locale: "en-US",
 } as const;

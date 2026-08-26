@@ -21,11 +21,12 @@ Layers stay loosely coupled so either can evolve without rewriting the other.
 | `src/experience/transition` | Progress model, input, config, visual derivation |
 | `src/experience/sky` | Sky wheel / input policy helpers |
 | `src/features/*` | Feature content (portfolio, about, contact, astronomy, captures) |
+| `src/features/content` | Cross-domain content validation (projects ↔ objects ↔ captures) |
 | `src/features/astronomy` | Coordinates, catalogs, object panel / search, sky DOM UI |
 | `src/types` | Domain models including `desktop.ts`, `experience.ts`, `astronomy.ts` |
-| `src/data` | Shared static / mock domain records |
+| `src/data` | Compatibility shims; prefer feature `data/` modules |
 | `src/state` | Zustand stores + Three.js / sky runtime refs |
-| `src/config` | Site, env, desktop, sky navigation / quality |
+| `src/config` | Site, env, desktop, sky navigation / quality, motion tokens |
 | `src/hooks` | Shared hooks (`useX`) |
 | `src/lib` | Cross-cutting utilities (geometry helpers, formatting) |
 | `public/assets` | Optimized static assets only |
@@ -173,13 +174,17 @@ When active:
 
 ## Resource staging
 
-`SkyExperienceHost` mounts the R3F canvas after idle (`requestIdleCallback`, fallback timeout) so the desktop paints first without leaving a blank sky if the user transitions quickly afterward.
+`SkyExperienceHost` probes WebGL, then mounts the R3F canvas after idle
+(`requestIdleCallback`) or earlier when the user begins entering the sky.
+Failures isolate behind an error boundary and a DOM astronomy fallback —
+see `docs/responsive-accessibility-performance.md`.
 
 ## Accessibility
 
-- Portfolio remains normal DOM
+- Portfolio remains normal DOM with skip link + `<main>`
 - `Explore the night sky` / `Return to desktop` buttons are keyboard operable
 - Scroll is not the only navigation path
+- Object search / details / fallback browser provide screen-reader access without the canvas
 - Debug overlay is development-only (`NODE_ENV === "development"`)
 
 ## Desktop window system

@@ -2,10 +2,12 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { IconSearch } from "@/components/icons/UiIcons";
 import { selectCelestialObject } from "@/features/astronomy/actions/selectCelestialObject";
 import { DeepSkySearchResults } from "@/features/astronomy/components/DeepSkySearchResults";
 import { searchDeepSkyObjects } from "@/features/astronomy/search/searchDeepSkyObjects";
 import { useExperienceStore } from "@/state/experience-store";
+import { setSearchHighlightObjectIds } from "@/state/sky-runtime";
 
 /**
  * Compact floating deep-sky search. Uses a labeled input + result buttons
@@ -29,6 +31,19 @@ export function DeepSkySearch() {
     [query],
   );
 
+  const showResults = open && query.trim().length > 0;
+
+  useEffect(() => {
+    if (showResults) {
+      setSearchHighlightObjectIds(results.map((result) => result.object.id));
+    } else {
+      setSearchHighlightObjectIds([]);
+    }
+    return () => {
+      setSearchHighlightObjectIds([]);
+    };
+  }, [showResults, results]);
+
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) {
@@ -39,7 +54,6 @@ export function DeepSkySearch() {
     return () => window.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
-  const showResults = open && query.trim().length > 0;
   const safeActiveIndex =
     results.length === 0
       ? 0
@@ -50,6 +64,7 @@ export function DeepSkySearch() {
     setQuery("");
     setActiveIndex(0);
     setOpen(false);
+    setSearchHighlightObjectIds([]);
     inputRef.current?.blur();
   };
 
@@ -59,6 +74,7 @@ export function DeepSkySearch() {
         Search deep-sky objects
       </label>
       <div className="dso-search__field">
+        <IconSearch className="dso-search__glyph" />
         <input
           ref={inputRef}
           id={inputId}

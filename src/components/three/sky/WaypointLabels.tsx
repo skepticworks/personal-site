@@ -12,6 +12,7 @@ import {
 } from "@/features/astronomy/coordinates/conversions";
 import { listDeepSkyObjects } from "@/features/astronomy/data/deep-sky-objects";
 import { evaluateWaypointVisibility } from "@/features/astronomy/waypoints/label-visibility";
+import { hasPersonalCapture } from "@/features/captures/selectors/captureSelectors";
 import { useExperienceStore } from "@/state/experience-store";
 import { skyRuntime } from "@/state/sky-runtime";
 
@@ -25,6 +26,7 @@ interface LabelModel {
   id: string;
   name: string;
   secondary: string;
+  hasPersonalPhoto: boolean;
   world: Vector3;
   direction: Cartesian3;
 }
@@ -52,6 +54,7 @@ export function WaypointLabels({ maxOrdinaryLabels, host }: WaypointLabelsProps)
         id: object.id,
         name: object.commonName,
         secondary,
+        hasPersonalPhoto: hasPersonalCapture(object.id),
         world: new Vector3(c.x, c.y, c.z),
         direction: { x: c.x, y: c.y, z: c.z },
       };
@@ -73,6 +76,7 @@ export function WaypointLabels({ maxOrdinaryLabels, host }: WaypointLabelsProps)
     for (const model of models) {
       const el = document.createElement("div");
       el.className = "sky-waypoint-label";
+      el.dataset.personal = model.hasPersonalPhoto ? "true" : "false";
       el.style.opacity = "0";
       el.style.visibility = "hidden";
 
@@ -82,7 +86,9 @@ export function WaypointLabels({ maxOrdinaryLabels, host }: WaypointLabelsProps)
 
       const meta = document.createElement("span");
       meta.className = "sky-waypoint-label__meta";
-      meta.textContent = model.secondary;
+      meta.textContent = model.hasPersonalPhoto
+        ? `${model.secondary} · my photo`
+        : model.secondary;
 
       el.append(name, meta);
       root.append(el);

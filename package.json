@@ -11,8 +11,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "validate:astro-assets": "tsx scripts/validate-astro-assets.ts",
-    "validate": "npm run typecheck && npm run validate:astro-assets",
-    "prebuild": "npm run validate:astro-assets",
+    "validate:content": "tsx scripts/validate-content.ts",
+    "validate": "npm run typecheck && npm run validate:content && npm run validate:astro-assets",
+    "prebuild": "npm run validate:content && npm run validate:astro-assets",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

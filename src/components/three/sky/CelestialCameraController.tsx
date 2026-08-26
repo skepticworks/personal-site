@@ -10,12 +10,12 @@ import {
 } from "three";
 
 import { SKY_NAVIGATION } from "@/config/sky-navigation";
-import {
-  getLookQuaternionForCelestialTarget,
+import { getLookQuaternionForCelestialTarget,
   quatAngularDistanceRadians,
   slerpQuat,
   type Quat,
 } from "@/features/astronomy/coordinates/camera-orientation";
+import { isValidEquatorialCoordinates } from "@/features/astronomy/coordinates/validate";
 import { getDeepSkyObjectById } from "@/features/astronomy/data/deep-sky-objects";
 import { useExperienceStore } from "@/state/experience-store";
 import {
@@ -86,7 +86,7 @@ export function CelestialCameraController() {
       if (skyRuntime.pendingFocusObjectId) {
         const pendingId = skyRuntime.pendingFocusObjectId;
         const object = getDeepSkyObjectById(pendingId);
-        if (object) {
+        if (object && isValidEquatorialCoordinates(object.coordinates)) {
           targetQuat.current = getLookQuaternionForCelestialTarget(
             object.coordinates,
           );
@@ -149,7 +149,7 @@ export function CelestialCameraController() {
   useEffect(() => {
     beginSkyTargetingRef.current = (objectId: string) => {
       const object = getDeepSkyObjectById(objectId);
-      if (!object) {
+      if (!object || !isValidEquatorialCoordinates(object.coordinates)) {
         return;
       }
       // Only animate while sky owns the camera; otherwise keep pending.

@@ -2,6 +2,8 @@
 
 import type { PointerEvent as ReactPointerEvent } from "react";
 
+import { IconClose } from "@/components/icons/UiIcons";
+
 interface WindowTitleBarProps {
   title: string;
   titleId: string;
@@ -40,7 +42,7 @@ export function WindowTitleBar({
         data-window-no-drag
         onClick={onClose}
       >
-        <span aria-hidden="true">×</span>
+        <IconClose className="desktop-window__close-icon" />
       </button>
     </div>
   );

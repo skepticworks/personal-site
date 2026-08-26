@@ -30,7 +30,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run typecheck` | TypeScript (`tsc --noEmit`) |
 | `npm run test` | Unit tests (Vitest) |
 | `npm run validate:astro-assets` | Astrophotography asset / capture validation |
-| `npm run validate` | Typecheck + astro asset validation |
+| `npm run validate:content` | Project / object / capture content validation |
+| `npm run validate` | Typecheck + content + astro asset validation |
 | `npm run format` | Format with Prettier |
 | `npm run format:check` | Check Prettier formatting |
 
@@ -41,6 +42,8 @@ Open [http://localhost:3000](http://localhost:3000).
 - [docs/transition.md](docs/transition.md) — progress model, config, camera handoff
 - [docs/sky-engine.md](docs/sky-engine.md) — celestial coordinates, navigation, waypoints, quality
 - [docs/object-interface.md](docs/object-interface.md) — object panel, search, deep links
+- [docs/responsive-accessibility-performance.md](docs/responsive-accessibility-performance.md) — Milestone 7 responsive, a11y, perf
+- [docs/content.md](docs/content.md) — adding projects, deep-sky objects, and captures
 - [docs/astrophotography-publishing.md](docs/astrophotography-publishing.md) — capture publishing workflow
 - [docs/assets.md](docs/assets.md) — web-derivative asset policy
 - [docs/reference-images.md](docs/reference-images.md) — third-party reference imagery
@@ -75,6 +78,9 @@ public/assets/
 
 - Shortcuts: Projects, About, Contact (configured in `src/config/desktop.ts`)
 - Add projects in `src/features/portfolio/data/projects.ts`
+- Add deep-sky objects in `src/features/astronomy/data/deep-sky-objects.ts`
+- Add captures in `src/features/captures/data/captures.ts`
+- See [docs/content.md](docs/content.md) for schemas, validation, and examples
 - Replace About/Contact placeholders in their feature `data/` files
 - Scroll / swipe (or **Explore the night sky**) enters the sky
 - In sky: drag to look, wheel to zoom (zoom out fully then scroll toward desktop to exit), tap waypoints or search (`/?object=andromeda-galaxy` deep links supported)
@@ -111,7 +117,7 @@ Create a GitHub repo, push, then import the project in Vercel (Next.js preset). 
 
 ## Accessibility
 
-Portfolio content is available through normal DOM windows and shortcuts. The WebGL sky is an enhancement path with keyboard-accessible enter/leave controls; scroll is not required.
+Portfolio content is available through normal DOM windows and shortcuts. The WebGL sky is an enhancement path with keyboard-accessible enter/leave controls; scroll is not required. When WebGL fails, a DOM astronomy browser preserves search and photography access. See [docs/responsive-accessibility-performance.md](docs/responsive-accessibility-performance.md).
 
 ## License
 

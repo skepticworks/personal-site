@@ -43,16 +43,17 @@ export function deriveTransitionVisual(
   const desktopT = smoothstep(phases.desktopExitStart, phases.desktopExitEnd, progress);
   const cameraT = smoothstep(phases.cameraPanStart, phases.cameraPanEnd, progress);
   const starsT = smoothstep(phases.starsStart, phases.starsEnd, progress);
-  const darkenT = smoothstep(0.05, 0.55, progress);
-  const hintT = 1 - smoothstep(0.02, 0.22, progress);
-  const skyOpacity = smoothstep(0.18, 0.55, progress);
+  const darkenT = smoothstep(0.04, 0.48, progress);
+  const hintT = 1 - smoothstep(0.02, 0.18, progress);
+  // Sky layer rises as the desk recedes so neither UI is "blank" mid-transition.
+  const skyOpacity = smoothstep(0.12, 0.48, progress);
 
   return {
     progress,
     desktopRotateXDeg: desktopT * exitRotate,
     desktopTranslateYPx: desktopT * config.desktopExitTranslateYPx,
     desktopScale: 1 - desktopT * (1 - config.desktopExitScale),
-    desktopOpacity: 1 - smoothstep(0.55, 0.92, progress),
+    desktopOpacity: 1 - smoothstep(0.48, 0.88, progress),
     desktopPerspectivePx: config.desktopPerspectivePx,
     skyOpacity,
     starsOpacity: starsT,

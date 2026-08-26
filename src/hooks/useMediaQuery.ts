@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-/** Matches the desktop CSS compact breakpoint for shared window behavior. */
-export const DESKTOP_COMPACT_MEDIA_QUERY = "(max-width: 767px)";
+import { DESKTOP_COMPACT_MEDIA_QUERY } from "@/config/breakpoints";
+
+export { DESKTOP_COMPACT_MEDIA_QUERY };
 
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(false);

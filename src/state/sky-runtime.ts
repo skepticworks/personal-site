@@ -17,12 +17,19 @@ export interface SkyRuntimeState {
   orientation: Quat;
   fov: number;
   hoveredObjectId: string | null;
+  /**
+   * Object IDs currently matching an open search result list.
+   * Used for waypoint emphasis without selecting every hit.
+   */
+  searchHighlightObjectIds: readonly string[];
   /** Object currently being targeted (may match selection). */
   targetingObjectId: string | null;
   /** True while pointer drag is rotating the sky. */
   isDragging: boolean;
   /** Resolved render quality for the active session. */
   quality: SkyRenderQuality;
+  /** Active renderer DPR after quality clamping (debug). */
+  rendererDpr: number;
   /** Count of waypoints with visible labels (debug). */
   visibleLabelCount: number;
   /**
@@ -43,9 +50,11 @@ export const skyRuntime: SkyRuntimeState = {
   orientation: identityQuat(),
   fov: SKY_NAVIGATION.defaultFov,
   hoveredObjectId: null,
+  searchHighlightObjectIds: [],
   targetingObjectId: null,
   isDragging: false,
   quality: "medium",
+  rendererDpr: 1,
   visibleLabelCount: 0,
   zoomAtMaxFov: false,
   zoomAtMinFov: false,
@@ -73,6 +82,12 @@ export function resetSkyNavigationGestures(): void {
   skyRuntime.targetingObjectId = null;
   skyRuntime.pendingFocusObjectId = null;
   skyRuntime.hoveredObjectId = null;
+  skyRuntime.searchHighlightObjectIds = [];
+  notifySkyUi();
+}
+
+export function setSearchHighlightObjectIds(ids: readonly string[]): void {
+  skyRuntime.searchHighlightObjectIds = ids;
   notifySkyUi();
 }
 

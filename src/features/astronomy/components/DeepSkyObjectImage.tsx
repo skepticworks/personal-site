@@ -3,6 +3,10 @@
 import { useState } from "react";
 
 import type { ObjectDisplayImage } from "@/features/astronomy/selectors/displayImage";
+import {
+  buildCaptureSrcSet,
+  defaultSizesForContext,
+} from "@/lib/responsive-image";
 import { useExperienceStore } from "@/state/experience-store";
 
 interface DeepSkyObjectImageProps {
@@ -44,7 +48,7 @@ function DeepSkyObjectImageInner({
       <div
         className="dso-image dso-image--empty"
         role="img"
-        aria-label="No image available"
+        aria-label={`No image available for ${objectName}`}
       >
         <span className="dso-image__placeholder">No image available</span>
       </div>
@@ -57,6 +61,8 @@ function DeepSkyObjectImageInner({
       image.alt && !image.alt.toLowerCase().startsWith("preview")
         ? image.alt
         : `My photograph of ${objectName}`;
+    const srcSet = buildCaptureSrcSet(capture.images, "preview");
+    const sizes = defaultSizesForContext("panel");
     return (
       <figure
         className={
@@ -76,10 +82,11 @@ function DeepSkyObjectImageInner({
             <img
               className="dso-image__media"
               src={image.src}
+              srcSet={srcSet}
               alt={alt}
               width={image.width}
               height={image.height}
-              sizes="(max-width: 767px) 92vw, 22rem"
+              sizes={sizes}
               loading="eager"
               decoding="async"
               onError={() => setFailed(true)}
@@ -90,10 +97,11 @@ function DeepSkyObjectImageInner({
           <img
             className="dso-image__media"
             src={image.src}
+            srcSet={srcSet}
             alt={alt}
             width={image.width}
             height={image.height}
-            sizes="(max-width: 767px) 92vw, 22rem"
+            sizes={sizes}
             loading="eager"
             decoding="async"
             onError={() => setFailed(true)}
@@ -129,7 +137,7 @@ function DeepSkyObjectImageInner({
         alt={image.alt || `Reference image of ${objectName}`}
         width={image.width}
         height={image.height}
-        sizes="(max-width: 767px) 92vw, 22rem"
+        sizes={defaultSizesForContext("panel")}
         loading="lazy"
         decoding="async"
         onError={() => setFailed(true)}

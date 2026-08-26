@@ -59,6 +59,20 @@ export function hasPersonalCapture(objectId: string): boolean {
   return getCapturesForObject(objectId).length > 0;
 }
 
+/** Objects that have at least one published personal capture. */
+export function getObjectsWithPersonalCaptures(): string[] {
+  const ids = new Set<string>();
+  for (const capture of listCaptures()) {
+    ids.add(capture.targetObjectId);
+  }
+  return [...ids];
+}
+
+/** Capture count for a deep-sky object (0 when none). */
+export function getCaptureCountForObject(objectId: string): number {
+  return getCapturesForObject(objectId).length;
+}
+
 export function sortCapturesByRecency(
   captures: AstrophotographyCapture[],
 ): AstrophotographyCapture[] {

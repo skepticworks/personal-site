@@ -52,7 +52,7 @@ export function ObjectCaptureSection({
   return (
     <section className="capture-section" aria-label="Personal photography">
       <div className="capture-section__intro">
-        <p className="dso-details__photo-flag">Photographed by me</p>
+        <h3 className="dso-details__section-title">My captures</h3>
         {captures.length > 1 ? (
           <p className="capture-section__count">
             {captures.length} captures

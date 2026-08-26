@@ -9,6 +9,7 @@ import {
   formatRedshift,
   formatRightAscension,
 } from "@/features/astronomy/formatting/astronomyFormatting";
+import { isValidEquatorialCoordinates } from "@/features/astronomy/coordinates/validate";
 import type { CelestialObject } from "@/types/astronomy";
 
 interface DeepSkyObjectMetadataProps {
@@ -20,86 +21,120 @@ interface MetaRow {
   value: string;
 }
 
+type MetaGroupId = "identity" | "coordinates" | "physical";
+
+interface MetaGroup {
+  id: MetaGroupId;
+  label: string;
+  rows: MetaRow[];
+}
+
 /**
- * Compact astronomy metadata grid. Omits unavailable fields (no "N/A" rows).
+ * Compact astronomy metadata with visual hierarchy:
+ * identity → coordinates → supporting physical data.
  */
 export function DeepSkyObjectMetadata({ object }: DeepSkyObjectMetadataProps) {
-  const rows = buildRows(object);
-  if (rows.length === 0) {
+  const groups = buildGroups(object).filter((group) => group.rows.length > 0);
+  if (groups.length === 0) {
     return null;
   }
 
   return (
-    <dl className="dso-meta">
-      {rows.map((row) => (
-        <div key={row.label} className="dso-meta__row">
-          <dt className="dso-meta__label">{row.label}</dt>
-          <dd className="dso-meta__value">{row.value}</dd>
-        </div>
+    <div className="dso-meta-groups">
+      {groups.map((group) => (
+        <section
+          key={group.id}
+          className={`dso-meta-group dso-meta-group--${group.id}`}
+          aria-label={group.label}
+        >
+          <h3 className="dso-meta-group__label">{group.label}</h3>
+          <dl className="dso-meta">
+            {group.rows.map((row) => (
+              <div key={row.label} className="dso-meta__row">
+                <dt className="dso-meta__label">{row.label}</dt>
+                <dd className="dso-meta__value">{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
       ))}
-    </dl>
+    </div>
   );
 }
 
-function buildRows(object: CelestialObject): MetaRow[] {
-  const rows: MetaRow[] = [];
-
-  rows.push({
-    label: "Type",
-    value: object.classificationSubtype
-      ? `${formatObjectType(object.objectType)} · ${object.classificationSubtype}`
-      : formatObjectType(object.objectType),
-  });
-
+function buildGroups(object: CelestialObject): MetaGroup[] {
+  const identity: MetaRow[] = [
+    {
+      label: "Type",
+      value: object.classificationSubtype
+        ? `${formatObjectType(object.objectType)} · ${object.classificationSubtype}`
+        : formatObjectType(object.objectType),
+    },
+  ];
   if (object.constellation) {
-    rows.push({ label: "Constellation", value: object.constellation });
+    identity.push({ label: "Constellation", value: object.constellation });
   }
-  if (object.distanceLy != null) {
-    rows.push({
-      label: "Distance",
-      value: formatDistanceLy(object.distanceLy),
-    });
+  const magnitude =
+    object.magnitude != null ? formatMagnitude(object.magnitude) : "";
+  if (magnitude) {
+    identity.push({ label: "Apparent magnitude", value: magnitude });
   }
-  if (object.magnitude != null) {
-    rows.push({
-      label: "Apparent magnitude",
-      value: formatMagnitude(object.magnitude),
-    });
+  const distance =
+    object.distanceLy != null ? formatDistanceLy(object.distanceLy) : "";
+  if (distance) {
+    identity.push({ label: "Distance", value: distance });
   }
-  rows.push({
-    label: "Right ascension",
-    value: formatRightAscension(object.coordinates.rightAscensionHours),
-  });
-  rows.push({
-    label: "Declination",
-    value: formatDeclination(object.coordinates.declinationDegrees),
-  });
-  if (object.angularSizeArcmin != null) {
-    rows.push({
-      label: "Angular size",
-      value: formatAngularSizeArcmin(object.angularSizeArcmin),
+
+  const coordinates: MetaRow[] = [];
+  if (isValidEquatorialCoordinates(object.coordinates)) {
+    coordinates.push({
+      label: "Right ascension",
+      value: formatRightAscension(object.coordinates.rightAscensionHours),
     });
+    coordinates.push({
+      label: "Declination",
+      value: formatDeclination(object.coordinates.declinationDegrees),
+    });
+  } else {
+    coordinates.push({ label: "Right ascension", value: "Unavailable" });
+    coordinates.push({ label: "Declination", value: "Unavailable" });
   }
-  if (object.physicalSizeLy != null) {
-    rows.push({
-      label: "Physical size",
-      value: formatPhysicalSizeLy(object.physicalSizeLy),
-    });
+
+  const physical: MetaRow[] = [];
+  const angular =
+    object.angularSizeArcmin != null
+      ? formatAngularSizeArcmin(object.angularSizeArcmin)
+      : "";
+  if (angular) {
+    physical.push({ label: "Angular size", value: angular });
   }
-  if (object.redshift != null) {
-    rows.push({
-      label: "Redshift",
-      value: formatRedshift(object.redshift),
-    });
+  const size =
+    object.physicalSizeLy != null
+      ? formatPhysicalSizeLy(object.physicalSizeLy)
+      : "";
+  if (size) {
+    physical.push({ label: "Physical size", value: size });
+  }
+  const redshift =
+    object.redshift != null ? formatRedshift(object.redshift) : "";
+  if (redshift) {
+    physical.push({ label: "Redshift", value: redshift });
   }
   if (object.surfaceBrightness != null) {
-    rows.push({
-      label: "Surface brightness",
-      value: `${formatMagnitude(object.surfaceBrightness)} mag/arcsec²`,
-    });
+    const sb = formatMagnitude(object.surfaceBrightness);
+    if (sb) {
+      physical.push({
+        label: "Surface brightness",
+        value: `${sb} mag/arcsec²`,
+      });
+    }
   }
 
-  return rows;
+  return [
+    { id: "identity", label: "Overview", rows: identity },
+    { id: "coordinates", label: "Coordinates (J2000)", rows: coordinates },
+    { id: "physical", label: "Additional data", rows: physical },
+  ];
 }
 
 /** Primary + secondary catalog ID presentation. */

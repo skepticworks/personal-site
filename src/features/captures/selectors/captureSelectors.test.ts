@@ -15,7 +15,7 @@ describe("captureSelectors", () => {
     expect(getCaptureById("cap-orion-2024")?.slug).toBe(
       "orion-nebula-widefield",
     );
-    expect(getCaptureBySlug("andromeda-2025")?.id).toBe("cap-andromeda-2025");
+    expect(getCaptureBySlug("andromeda-galaxy")?.id).toBe("cap-andromeda-2025");
   });
 
   it("supports multiple captures per target object", () => {

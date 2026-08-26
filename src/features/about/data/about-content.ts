@@ -9,30 +9,38 @@ export interface AboutContent {
 }
 
 /**
- * Placeholder profile copy — replace with real personal content later.
- * Values are intentionally generic and clearly temporary.
+ * Profile copy sourced from resume (Tyler Matthews).
  */
 export const aboutContent: AboutContent = {
-  name: "[Your Name]",
-  headline: "Software developer & amateur astronomer",
+  name: "Tyler Matthews",
+  headline:
+    "Computer Science graduate · Software engineering · Backend systems · Data & automation",
   biography: [
-    "This About window is placeholder content for the portfolio foundation. Replace these paragraphs with a short biography.",
-    "The site pairs a desktop-style workspace for software projects with a planned interactive night-sky experience for astrophotography.",
+    "Computer Science graduate with hands-on experience developing backend APIs, data-processing pipelines, database-backed applications, and cloud-hosted software systems.",
+    "Proficient in Python, Java, JavaScript/TypeScript, SQL, Linux, REST APIs, and databases. Experienced troubleshooting technical workflows, working with structured data, and collaborating across development teams.",
+    "Based in Jupiter, Florida. Interested in software engineering, backend systems, automation, and data-focused roles — alongside deep-sky imaging and interactive astronomy on this site.",
   ],
   professionalInterests: [
-    "Product-minded engineering",
-    "Thoughtful interface architecture",
-    "Reliable web systems",
+    "Software engineering roles",
+    "Backend systems & APIs",
+    "Automation and data pipelines",
+    "Cross-functional collaboration",
   ],
   technicalInterests: [
-    "TypeScript / React",
-    "Real-time and interactive graphics",
-    "Developer tooling",
+    "Python, Java, TypeScript",
+    "Node.js, Express, REST APIs",
+    "MongoDB, MySQL, Docker",
+    "pandas, NumPy, GeoJSON pipelines",
   ],
   astronomyInterests: [
     "Deep-sky imaging",
-    "Celestial coordinate systems",
-    "Observing planning",
+    "Wide-field galaxy photography",
+    "Interactive sky exploration",
   ],
-  focusAreas: ["Full-stack web", "Interactive experiences", "Astrophotography"],
+  focusAreas: [
+    "Backend systems",
+    "Data & automation",
+    "Full-stack web",
+    "Astrophotography",
+  ],
 };

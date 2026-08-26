@@ -1,12 +1,9 @@
-import { contactLinks } from "@/features/contact/data/contact-links";
+import { contactIntro, contactLinks } from "@/features/contact/data/contact-links";
 
 export function ContactWindowContent() {
   return (
     <div className="contact-content">
-      <p className="contact-content__intro">
-        Reach out through any of the channels below. Links and addresses are
-        configuration placeholders until real contact details are supplied.
-      </p>
+      <p className="contact-content__intro">{contactIntro}</p>
       <ul className="contact-list">
         {contactLinks.map((link) => {
           const isExternal = link.kind !== "email";

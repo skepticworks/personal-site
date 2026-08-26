@@ -12,11 +12,12 @@ export function clampWindowPosition(
   size: DesktopSize,
   viewport: ViewportBox,
 ): DesktopPoint {
-  const maxX = Math.max(0, viewport.width - Math.min(size.width, viewport.width));
-  const maxY = Math.max(
-    0,
-    viewport.height - TITLE_BAR_REACH,
-  );
+  const usableWidth = Math.max(0, viewport.width);
+  const usableHeight = Math.max(0, viewport.height);
+  const windowWidth = Math.min(size.width, usableWidth);
+  const maxX = Math.max(0, usableWidth - windowWidth);
+  // Keep enough of the title bar on-screen after aggressive shrink / short viewports.
+  const maxY = Math.max(0, usableHeight - Math.min(TITLE_BAR_REACH, usableHeight));
 
   return {
     x: Math.min(Math.max(0, position.x), maxX),
@@ -32,21 +33,19 @@ export function constrainWindowSize(
 ): DesktopSize {
   if (compact) {
     const margin = 12;
+    const shortcutReserve = viewport.height < 520 ? 36 : 48;
     return {
       width: Math.max(minSize.width, viewport.width - margin * 2),
-      height: Math.max(minSize.height, viewport.height - margin * 2 - 48),
+      height: Math.max(160, viewport.height - margin * 2 - shortcutReserve),
     };
   }
 
+  const maxWidth = Math.max(minSize.width, viewport.width - 24);
+  const maxHeight = Math.max(minSize.height, viewport.height - 24);
+
   return {
-    width: Math.min(
-      Math.max(size.width, minSize.width),
-      Math.max(minSize.width, viewport.width - 24),
-    ),
-    height: Math.min(
-      Math.max(size.height, minSize.height),
-      Math.max(minSize.height, viewport.height - 24),
-    ),
+    width: Math.min(Math.max(size.width, minSize.width), maxWidth),
+    height: Math.min(Math.max(size.height, minSize.height), maxHeight),
   };
 }
 

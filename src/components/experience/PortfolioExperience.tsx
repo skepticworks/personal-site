@@ -6,6 +6,7 @@ import { Desktop } from "@/components/desktop/Desktop";
 import { ExperienceModeControls } from "@/components/experience/ExperienceModeControls";
 import { SkyDebugOverlay } from "@/components/experience/SkyDebugOverlay";
 import { TransitionDebugOverlay } from "@/components/experience/TransitionDebugOverlay";
+import { SkipLink } from "@/components/system/SkipLink";
 import { SkyExperienceHost } from "@/components/three/SkyExperienceHost";
 import { DeepSkyObjectInterface } from "@/features/astronomy/components/DeepSkyObjectInterface";
 import { useSelectedObjectUrlSync } from "@/features/astronomy/hooks/useSelectedObjectUrlSync";
@@ -36,11 +37,14 @@ export function PortfolioExperience() {
 
   return (
     <div ref={rootRef} className="experience-root" data-mode={mode}>
+      <SkipLink />
       <SkyExperienceHost />
 
-      <div ref={desktopRef} className="desktop-transition-layer">
-        <Desktop />
-      </div>
+      <main id="main-content" className="experience-main">
+        <div ref={desktopRef} className="desktop-transition-layer">
+          <Desktop />
+        </div>
+      </main>
 
       <Suspense fallback={null}>
         <ObjectUrlSync />

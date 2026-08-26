@@ -61,9 +61,8 @@ export function SkyDebugOverlay() {
       <div>selected: {selectedId ?? "none"}</div>
       <div>pending focus: {skyRuntime.pendingFocusObjectId ?? "none"}</div>
       <div>hover: {skyRuntime.hoveredObjectId ?? "none"}</div>
-      <div>
-        quality: {skyRuntime.quality} ({qualityPref})
-      </div>
+      <div>quality: {skyRuntime.quality} ({qualityPref})</div>
+      <div>dpr: {skyRuntime.rendererDpr}</div>
       <div>labels: {skyRuntime.visibleLabelCount}</div>
     </div>
   );

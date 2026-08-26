@@ -17,10 +17,17 @@ Append a `PortfolioProject` in `src/features/portfolio/data/projects.ts`.
 
 ## Responsive behavior
 
-| Viewport | Behavior |
+Presentation is resolved by `useViewportMode()` (width + height + pointer/hover),
+not a single CSS breakpoint. See
+`docs/responsive-accessibility-performance.md`.
+
+| Presentation | Behavior |
 | --- | --- |
-| ≥ 768px | Freely positioned windows, title-bar dragging, left shortcut column |
-| &lt; 768px | Near full-screen windows, no dragging, bottom shortcut row |
+| `desktop-windows` (≥ ~1024px, fine pointer) | Freely positioned windows, title-bar dragging |
+| `tablet-panels` | Near full-screen panels, limited / no drag |
+| `mobile-sheets` (phones / short viewports) | Bottom reading sheet — not a tiny OS window |
+
+Legacy CSS still adjusts shortcuts at `767px` / `480px`. Resize reclamps window geometry so title bars stay reachable.
 
 ## Scroll-to-explore
 

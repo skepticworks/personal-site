@@ -119,6 +119,9 @@ export interface AstrophotographyCapture {
    */
   featured?: boolean;
 
+  /** Lower sorts first in object galleries when dates are equal/absent. */
+  sortOrder?: number;
+
   /** Convenience single-night date; prefer `captureStartDate` / `captureEndDate`. */
   capturedAt?: string;
   captureStartDate?: string;

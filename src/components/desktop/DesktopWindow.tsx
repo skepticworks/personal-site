@@ -4,10 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { WindowTitleBar } from "@/components/desktop/WindowTitleBar";
 import { getWindowDefinition } from "@/components/desktop/window-registry";
-import {
-  DESKTOP_COMPACT_MEDIA_QUERY,
-  useMediaQuery,
-} from "@/hooks/useMediaQuery";
+import { useViewportMode } from "@/hooks/useViewportMode";
 import { useWindowDrag } from "@/hooks/useWindowDrag";
 import {
   clampWindowPosition,
@@ -23,6 +20,10 @@ interface DesktopWindowProps {
   viewport: { width: number; height: number };
 }
 
+/**
+ * Desktop floating window, tablet near-fullscreen panel, or mobile reading sheet
+ * depending on `useViewportMode` presentation — shared content components.
+ */
 export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
   const definition = getWindowDefinition(windowType);
   const windowState = useDesktopStore((state) => state.windows[windowType]);
@@ -33,12 +34,14 @@ export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
   const canInteractWithDesktop = useExperienceStore(
     (state) => state.canInteractWithDesktop,
   );
-  const isCompact = useMediaQuery(DESKTOP_COMPACT_MEDIA_QUERY);
+  const { presentation, useMobileSheets, isCompact } = useViewportMode();
   const articleRef = useRef<HTMLElement>(null);
   const hasFocusedRef = useRef(false);
 
   const isActive = activeWindowId === windowType;
   const Content = definition.Content;
+  const dragEnabled =
+    presentation === "desktop-windows" && canInteractWithDesktop;
 
   const size = useMemo(
     () =>
@@ -76,7 +79,7 @@ export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
   );
 
   const dragHandlers = useWindowDrag({
-    enabled: !isCompact && canInteractWithDesktop,
+    enabled: dragEnabled,
     position: windowState.position,
     onFocus,
     onMove,
@@ -91,20 +94,53 @@ export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
     articleRef.current?.focus();
   }, [isActive]);
 
+  // Keep geometry inside the viewport when the browser is resized.
+  useEffect(() => {
+    if (isCompact || !windowState.isOpen) {
+      return;
+    }
+    const clamped = clampWindowPosition(windowState.position, size, viewport);
+    if (
+      clamped.x !== windowState.position.x ||
+      clamped.y !== windowState.position.y
+    ) {
+      moveWindow(windowType, clamped);
+    }
+  }, [
+    isCompact,
+    moveWindow,
+    size,
+    viewport,
+    windowState.isOpen,
+    windowState.position,
+    windowType,
+  ]);
+
   const titleId = `desktop-window-title-${windowType}`;
+  const presentationClass =
+    presentation === "mobile-sheets"
+      ? "desktop-window--mobile-sheet"
+      : presentation === "tablet-panels"
+        ? "desktop-window--tablet-panel"
+        : "desktop-window--floating";
 
   return (
     <article
       ref={articleRef}
-      className={`desktop-window${isActive ? " is-active" : ""}`}
-      style={{
-        width: size.width,
-        height: size.height,
-        transform: `translate(${position.x}px, ${position.y}px)`,
-        zIndex: windowState.zIndex,
-      }}
+      className={`desktop-window ${presentationClass}${isActive ? " is-active" : ""}`}
+      style={
+        useMobileSheets
+          ? { zIndex: windowState.zIndex }
+          : {
+              width: size.width,
+              height: size.height,
+              transform: `translate(${position.x}px, ${position.y}px)`,
+              zIndex: windowState.zIndex,
+            }
+      }
       aria-labelledby={titleId}
       data-active={isActive ? "true" : "false"}
+      data-presentation={presentation}
       tabIndex={-1}
       onPointerDown={onFocus}
     >
@@ -114,7 +150,7 @@ export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
         isActive={isActive}
         onClose={() => closeWindow(windowType)}
         dragHandlers={dragHandlers}
-        dragEnabled={!isCompact && canInteractWithDesktop}
+        dragEnabled={dragEnabled}
       />
       <div className="desktop-window__body">
         <Content />

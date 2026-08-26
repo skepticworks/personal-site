@@ -14,6 +14,13 @@ import {
   getCaptureDisplayImage,
   hasHighQualityPreview,
 } from "@/features/captures/selectors/captureSelectors";
+import {
+  IconClose,
+  IconZoomIn,
+  IconZoomOut,
+} from "@/components/icons/UiIcons";
+import { trapFocus, restoreFocus } from "@/lib/focus-management";
+import { buildCaptureSrcSet } from "@/lib/responsive-image";
 import type { AstrophotographyCapture } from "@/types/captures";
 import { useExperienceStore } from "@/state/experience-store";
 
@@ -135,10 +142,16 @@ export function CaptureImageViewer({
     const { overflow } = document.body.style;
     document.body.style.overflow = "hidden";
 
+    const dialog = closeButtonRef.current?.closest(
+      '[role="dialog"]',
+    ) as HTMLElement | null;
+    const releaseTrap = dialog ? trapFocus(dialog) : undefined;
+
     return () => {
+      releaseTrap?.();
       document.body.style.overflow = overflow;
       useExperienceStore.getState().setCaptureViewerOpen(false);
-      previouslyFocused.current?.focus?.();
+      restoreFocus(previouslyFocused.current);
     };
   }, []);
 
@@ -225,6 +238,7 @@ export function CaptureImageViewer({
     useHq && hqReady && !hqFailed && hq
       ? hq
       : getCaptureDisplayImage(capture, "panel");
+  const viewerSrcSet = buildCaptureSrcSet(capture.images, "viewer");
 
   return (
     <div
@@ -252,7 +266,7 @@ export function CaptureImageViewer({
             onClick={() => setScale(scaleRef.current / ZOOM_STEP)}
             aria-label="Zoom out"
           >
-            −
+            <IconZoomOut className="capture-viewer__control-icon" />
           </button>
           <button
             type="button"
@@ -268,7 +282,7 @@ export function CaptureImageViewer({
             onClick={() => setScale(scaleRef.current * ZOOM_STEP)}
             aria-label="Zoom in"
           >
-            +
+            <IconZoomIn className="capture-viewer__control-icon" />
           </button>
           <button
             ref={closeButtonRef}
@@ -277,7 +291,8 @@ export function CaptureImageViewer({
             onClick={onClose}
             aria-label="Close image viewer"
           >
-            Close
+            <IconClose className="capture-viewer__control-icon" />
+            <span>Close</span>
           </button>
         </div>
       </div>
@@ -300,6 +315,8 @@ export function CaptureImageViewer({
           <img
             className="capture-viewer__image"
             src={displaySrc}
+            srcSet={viewerSrcSet}
+            sizes="100vw"
             alt={displayAsset.alt || `Web preview of ${capture.title}`}
             width={displayAsset.width}
             height={displayAsset.height}
