@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   // Keep repository docs intentional; do not auto-generate AGENTS.md / CLAUDE.md.
   agentRules: false,
   output: "export",
+  // Emit /list/index.html style paths so static hosts resolve clean URLs.
+  trailingSlash: true,
   env: {
     NEXT_PUBLIC_VERCEL_ENV:
       process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "development",

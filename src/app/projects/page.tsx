@@ -25,7 +25,7 @@ export default function ProjectsIndexPage() {
         {projects.map((project) => (
           <li key={project.id} className="project-index__item">
             <h2>
-              <Link href={`/projects/${project.slug}`}>{project.title}</Link>
+              <Link href={`/projects/${project.slug}/`}>{project.title}</Link>
             </h2>
             <p>{project.summary}</p>
             <ul className="project-index__highlights">

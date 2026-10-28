@@ -90,7 +90,7 @@ export function ProjectsWindowContent() {
           ))}
         </div>
         <div className="projects-detail__links">
-          <a href={`/projects/${selected.slug}`}>Open full page</a>
+          <a href={`/projects/${selected.slug}/`}>Open full page</a>
           {selected.links.repository ? (
             <a
               href={selected.links.repository}

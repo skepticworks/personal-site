@@ -21,7 +21,7 @@ export function ProjectPageContent({ project }: { project: PortfolioProject }) {
   return (
     <article className="project-page">
       <p className="project-page__crumb">
-        <Link href="/projects">Projects</Link>
+        <Link href="/projects/">Projects</Link>
         <span aria-hidden="true"> / </span>
         <span>{project.title}</span>
       </p>

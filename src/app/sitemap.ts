@@ -11,25 +11,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: origin,
+      url: `${origin}/`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 1,
     },
     {
-      url: `${origin}/list`,
+      url: `${origin}/list/`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: `${origin}/projects`,
+      url: `${origin}/projects/`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,
     },
     ...projects.map((project) => ({
-      url: `${origin}/projects/${project.slug}`,
+      url: `${origin}/projects/${project.slug}/`,
       lastModified: new Date(project.updatedAt ?? project.startedAt),
       changeFrequency: "monthly" as const,
       priority: 0.7,

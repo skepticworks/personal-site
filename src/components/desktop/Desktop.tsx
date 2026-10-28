@@ -92,7 +92,7 @@ export function Desktop() {
           >
             <IconDocument className="desktop-header-icon-link__icon" />
           </a>
-          <a className="desktop-header-text-link" href="/list">
+          <a className="desktop-header-text-link" href="/list/">
             List view
           </a>
         </div>

@@ -20,7 +20,7 @@ export function AboutWindowContent() {
         <h4 id="about-education-heading">Education</h4>
         <p>{aboutContent.education}</p>
         {aboutContent.credentials.length > 0 ? (
-          <ul className="about-content__chips">
+          <ul className="about-content__list">
             {aboutContent.credentials.map((item) => (
               <li key={item}>{item}</li>
             ))}
@@ -30,39 +30,21 @@ export function AboutWindowContent() {
 
       <section aria-labelledby="about-focus-heading">
         <h4 id="about-focus-heading">Focus areas</h4>
-        <ul className="about-content__chips">
+        <ul className="about-content__list">
           {aboutContent.focusAreas.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
       </section>
 
-      <div className="about-content__columns">
-        <section aria-labelledby="about-pro-heading">
-          <h4 id="about-pro-heading">Professional</h4>
-          <ul>
-            {aboutContent.professionalInterests.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-        <section aria-labelledby="about-tech-heading">
-          <h4 id="about-tech-heading">Technical</h4>
-          <ul>
-            {aboutContent.technicalInterests.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-        <section aria-labelledby="about-astro-heading">
-          <h4 id="about-astro-heading">Astronomy</h4>
-          <ul>
-            {aboutContent.astronomyInterests.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-      </div>
+      <section aria-labelledby="about-interests-heading">
+        <h4 id="about-interests-heading">Interests & strengths</h4>
+        <ul className="about-content__list">
+          {aboutContent.interests.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

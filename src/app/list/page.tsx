@@ -44,6 +44,12 @@ export default function ListViewPage() {
             <li key={item}>{item}</li>
           ))}
         </ul>
+        <h3>Interests & strengths</h3>
+        <ul>
+          {aboutContent.interests.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
       </section>
 
       <section className="list-section" aria-labelledby="list-skills">
@@ -61,7 +67,7 @@ export default function ListViewPage() {
         {projects.map((project) => (
           <article key={project.id} className="list-project">
             <h3>
-              <Link href={`/projects/${project.slug}`}>{project.title}</Link>
+              <Link href={`/projects/${project.slug}/`}>{project.title}</Link>
             </h3>
             <p>{project.summary}</p>
             <p>{project.description}</p>

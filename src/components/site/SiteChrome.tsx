@@ -14,8 +14,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
         </div>
         <nav className="site-doc__nav" aria-label="Site">
           <Link href="/">Desktop</Link>
-          <Link href="/list">List view</Link>
-          <Link href="/projects">Projects</Link>
+          <Link href="/list/">List view</Link>
+          <Link href="/projects/">Projects</Link>
           <a href={siteConfig.resumePath} target="_blank" rel="noopener noreferrer">
             Resume
           </a>
