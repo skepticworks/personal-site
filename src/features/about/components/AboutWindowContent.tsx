@@ -16,6 +16,18 @@ export function AboutWindowContent() {
         ))}
       </section>
 
+      <section aria-labelledby="about-education-heading">
+        <h4 id="about-education-heading">Education</h4>
+        <p>{aboutContent.education}</p>
+        {aboutContent.credentials.length > 0 ? (
+          <ul className="about-content__chips">
+            {aboutContent.credentials.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
+
       <section aria-labelledby="about-focus-heading">
         <h4 id="about-focus-heading">Focus areas</h4>
         <ul className="about-content__chips">

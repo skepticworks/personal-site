@@ -23,6 +23,7 @@ const baseProject: PortfolioProject = {
   title: "Test",
   summary: "Summary",
   description: "Description",
+  highlights: [],
   category: "web",
   status: "active",
   technologies: [],

@@ -11,6 +11,8 @@ function statusLabel(status: PortfolioProject["status"]): string {
       return "Active";
     case "maintained":
       return "Maintained";
+    case "completed":
+      return "Completed";
     case "archived":
       return "Archived";
     case "concept":
@@ -21,7 +23,10 @@ function statusLabel(status: PortfolioProject["status"]): string {
 export function ProjectsWindowContent() {
   const projects = useMemo(() => listProjects(), []);
   const [selectedId, setSelectedId] = useState<string>(
-    () => projects.find((project) => project.featured)?.id ?? projects[0]?.id ?? "",
+    () =>
+      projects.find((project) => project.featured)?.id ??
+      projects[0]?.id ??
+      "",
   );
 
   const selected =
@@ -67,7 +72,16 @@ export function ProjectsWindowContent() {
             ) : null}
           </p>
         </header>
-        <p>{selected.description}</p>
+        <p>{selected.summary}</p>
+        {selected.highlights.length > 0 ? (
+          <ul className="projects-detail__highlights">
+            {selected.highlights.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>{selected.description}</p>
+        )}
         <div className="projects-detail__tech" aria-label="Technologies">
           {selected.technologies.map((tech) => (
             <span key={tech} className="tech-chip">
@@ -76,6 +90,7 @@ export function ProjectsWindowContent() {
           ))}
         </div>
         <div className="projects-detail__links">
+          <a href={`/projects/${selected.slug}`}>Open full page</a>
           {selected.links.repository ? (
             <a
               href={selected.links.repository}

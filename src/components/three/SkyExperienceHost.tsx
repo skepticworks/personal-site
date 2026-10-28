@@ -34,9 +34,9 @@ const SkyExperienceLazy = dynamic(
 );
 
 /**
- * Stages the R3F sky after idle / transition intent so the initial portfolio
- * payload stays light. Surfaces loading + recoverable WebGL failures without
- * crashing the React tree.
+ * Stages the R3F sky after near-scroll intent / idle / transition so the
+ * initial portfolio payload stays light. Surfaces loading + recoverable WebGL
+ * failures without crashing the React tree.
  */
 export function SkyExperienceHost() {
   const [phase, setPhase] = useState<SkyHostPhase>("deferred");
@@ -45,6 +45,7 @@ export function SkyExperienceHost() {
   const [retryKey, setRetryKey] = useState(0);
   const [enteringSky, setEnteringSky] = useState(false);
   const startedRef = useRef(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const mode = useExperienceStore((state) => state.mode);
   const requestEnterPortfolio = useExperienceStore(
     (state) => state.requestEnterPortfolio,
@@ -73,13 +74,35 @@ export function SkyExperienceHost() {
     if (mode === "portfolio") {
       return;
     }
-    // Defer so mode transitions do not cascade setState inside the effect body.
     const timer = window.setTimeout(() => {
       setEnteringSky(true);
       activateSky();
     }, 0);
     return () => window.clearTimeout(timer);
   }, [activateSky, mode]);
+
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          activateSky();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "0px 0px 35% 0px",
+        threshold: 0,
+      },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [activateSky]);
 
   useEffect(() => {
     let cancelled = false;
@@ -98,14 +121,14 @@ export function SkyExperienceHost() {
     };
 
     if (typeof idleWindow.requestIdleCallback === "function") {
-      const id = idleWindow.requestIdleCallback(schedule, { timeout: 1800 });
+      const id = idleWindow.requestIdleCallback(schedule, { timeout: 4000 });
       return () => {
         cancelled = true;
         idleWindow.cancelIdleCallback?.(id);
       };
     }
 
-    const timer = window.setTimeout(schedule, 400);
+    const timer = window.setTimeout(schedule, 2500);
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
@@ -128,6 +151,12 @@ export function SkyExperienceHost() {
 
   return (
     <>
+      <div
+        ref={sentinelRef}
+        className="sky-load-sentinel"
+        aria-hidden="true"
+      />
+
       {needsVisibleLoading ? (
         <div className="sky-load-status" role="status" aria-live="polite">
           <p className="sky-load-status__label">Preparing night sky…</p>

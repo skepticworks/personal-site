@@ -1,4 +1,10 @@
-export type DesktopWindowType = "projects" | "about" | "contact";
+export type DesktopWindowType =
+  | "projects"
+  | "about"
+  | "contact"
+  | "resume"
+  | "skills"
+  | "links";
 
 export interface DesktopPoint {
   x: number;

@@ -2,6 +2,8 @@ export interface AboutContent {
   name: string;
   headline: string;
   biography: string[];
+  education: string;
+  credentials: string[];
   professionalInterests: string[];
   technicalInterests: string[];
   astronomyInterests: string[];
@@ -9,28 +11,32 @@ export interface AboutContent {
 }
 
 /**
- * Profile copy sourced from resume (Tyler Matthews).
+ * Profile copy sourced from resume (Tyler Matthews — NextEra / software track).
  */
 export const aboutContent: AboutContent = {
   name: "Tyler Matthews",
   headline:
-    "Computer Science graduate · Software engineering · Backend systems · Data & automation",
+    "Computer Science graduate · Test automation · Backend systems · CI/CD & reliability",
   biography: [
-    "Computer Science graduate with hands-on experience developing backend APIs, data-processing pipelines, database-backed applications, and cloud-hosted software systems.",
-    "Proficient in Python, Java, JavaScript/TypeScript, SQL, Linux, REST APIs, and databases. Experienced troubleshooting technical workflows, working with structured data, and collaborating across development teams.",
-    "Based in Jupiter, Florida. Interested in software engineering, backend systems, automation, and data-focused roles — alongside deep-sky imaging and interactive astronomy on this site.",
+    "Computer Science graduate (UCF, 2026) focused on test automation, CI/CD, and reliable, observable systems. Wrote 300+ automated tests (pytest, Jest, Vitest), deployed applications to DigitalOcean with Docker, and run CI/CD through GitHub Actions.",
+    "Hands-on with root-cause analysis, logging, health checks, retries, and cross-team integration troubleshooting across backend APIs, data pipelines, and cloud-hosted software.",
+    "Based in Jupiter, Florida. Interested in software engineering, backend systems, automation, and QA/cloud roles — alongside deep-sky imaging and interactive astronomy on this site.",
   ],
+  education:
+    "B.S. Computer Science, University of Central Florida, August 2026 · GPA 3.62",
+  credentials: ["AWS cybersecurity course badge"],
   professionalInterests: [
     "Software engineering roles",
     "Backend systems & APIs",
+    "Test automation & CI/CD",
     "Automation and data pipelines",
-    "Cross-functional collaboration",
+    "Cloud & reliability",
   ],
   technicalInterests: [
-    "Python, Java, TypeScript",
-    "Node.js, Express, REST APIs",
-    "MongoDB, MySQL, Docker",
-    "pandas, NumPy, GeoJSON pipelines",
+    "Python, TypeScript, Java, SQL",
+    "pytest, Vitest, Jest, Postman",
+    "Node.js, Express, REST APIs, Docker",
+    "MongoDB, MySQL, pandas, GeoJSON pipelines",
   ],
   astronomyInterests: [
     "Deep-sky imaging",
@@ -38,9 +44,10 @@ export const aboutContent: AboutContent = {
     "Interactive sky exploration",
   ],
   focusAreas: [
-    "Backend systems",
-    "Data & automation",
-    "Full-stack web",
-    "Astrophotography",
+    "Software engineering",
+    "Backend systems & APIs",
+    "Test automation & CI/CD",
+    "Automation and data pipelines",
+    "Cloud & reliability",
   ],
 };

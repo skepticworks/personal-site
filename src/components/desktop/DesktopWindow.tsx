@@ -78,6 +78,15 @@ export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
     [moveWindow, windowType],
   );
 
+  const restoreFocusAndClose = useCallback(() => {
+    const returnId = closeWindow(windowType);
+    if (returnId) {
+      window.requestAnimationFrame(() => {
+        document.getElementById(returnId)?.focus();
+      });
+    }
+  }, [closeWindow, windowType]);
+
   const dragHandlers = useWindowDrag({
     enabled: dragEnabled,
     position: windowState.position,
@@ -87,12 +96,33 @@ export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
   });
 
   useEffect(() => {
-    if (!isActive || hasFocusedRef.current) {
+    if (!isActive) {
+      hasFocusedRef.current = false;
+      return;
+    }
+    if (hasFocusedRef.current) {
       return;
     }
     hasFocusedRef.current = true;
     articleRef.current?.focus();
   }, [isActive]);
+
+  useEffect(() => {
+    if (!isActive || !windowState.isOpen) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") {
+        return;
+      }
+      event.preventDefault();
+      restoreFocusAndClose();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isActive, restoreFocusAndClose, windowState.isOpen]);
 
   // Keep geometry inside the viewport when the browser is resized.
   useEffect(() => {
@@ -148,7 +178,7 @@ export function DesktopWindow({ windowType, viewport }: DesktopWindowProps) {
         title={definition.title}
         titleId={titleId}
         isActive={isActive}
-        onClose={() => closeWindow(windowType)}
+        onClose={restoreFocusAndClose}
         dragHandlers={dragHandlers}
         dragEnabled={dragEnabled}
       />

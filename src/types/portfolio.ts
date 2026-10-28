@@ -7,7 +7,12 @@ export type ProjectCategory =
   | "research"
   | "other";
 
-export type ProjectStatus = "active" | "maintained" | "archived" | "concept";
+export type ProjectStatus =
+  | "active"
+  | "maintained"
+  | "completed"
+  | "archived"
+  | "concept";
 
 export interface ProjectLinks {
   repository?: string;
@@ -21,6 +26,8 @@ export interface PortfolioProject {
   slug: string;
   summary: string;
   description: string;
+  /** Short highlight bullets shown in windows and project pages. */
+  highlights: string[];
   category: ProjectCategory;
   status: ProjectStatus;
   technologies: string[];

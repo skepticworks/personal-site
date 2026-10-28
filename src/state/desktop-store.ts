@@ -16,8 +16,10 @@ interface DesktopStoreState {
   windows: Record<DesktopWindowType, DesktopWindowState>;
   activeWindowId: DesktopWindowType | null;
   zCounter: number;
-  openWindow: (type: DesktopWindowType) => void;
-  closeWindow: (id: DesktopWindowType) => void;
+  /** Shortcut/button id that opened each window — used to restore focus on close. */
+  focusReturnByWindow: Partial<Record<DesktopWindowType, string>>;
+  openWindow: (type: DesktopWindowType, options?: { focusReturnId?: string }) => void;
+  closeWindow: (id: DesktopWindowType) => string | null;
   focusWindow: (id: DesktopWindowType) => void;
   moveWindow: (id: DesktopWindowType, position: DesktopPoint) => void;
   resizeWindow: (id: DesktopWindowType, size: DesktopSize) => void;
@@ -58,18 +60,24 @@ export const useDesktopStore = create<DesktopStoreState>((set, get) => ({
   windows: createInitialWindows(),
   activeWindowId: null,
   zCounter: 10,
-  openWindow: (type) => {
-    const { windows, zCounter, activeWindowId } = get();
+  focusReturnByWindow: {},
+  openWindow: (type, options) => {
+    const { windows, zCounter, activeWindowId, focusReturnByWindow } = get();
     const existing = windows[type];
+    const nextFocusReturn = options?.focusReturnId
+      ? { ...focusReturnByWindow, [type]: options.focusReturnId }
+      : focusReturnByWindow;
 
     if (existing.isOpen) {
       if (activeWindowId === type) {
+        set({ focusReturnByWindow: nextFocusReturn });
         return;
       }
       const layer = nextZIndex(zCounter);
       set({
         activeWindowId: type,
         zCounter: layer.zCounter,
+        focusReturnByWindow: nextFocusReturn,
         windows: {
           ...windows,
           [type]: { ...existing, zIndex: layer.zIndex },
@@ -82,6 +90,7 @@ export const useDesktopStore = create<DesktopStoreState>((set, get) => ({
     set({
       activeWindowId: type,
       zCounter: layer.zCounter,
+      focusReturnByWindow: nextFocusReturn,
       windows: {
         ...windows,
         [type]: {
@@ -93,11 +102,15 @@ export const useDesktopStore = create<DesktopStoreState>((set, get) => ({
     });
   },
   closeWindow: (id) => {
-    const { windows, activeWindowId } = get();
+    const { windows, activeWindowId, focusReturnByWindow } = get();
     const target = windows[id];
     if (!target.isOpen) {
-      return;
+      return null;
     }
+
+    const returnId = focusReturnByWindow[id] ?? null;
+    const remainingFocus = { ...focusReturnByWindow };
+    delete remainingFocus[id];
 
     const updatedWindows = {
       ...windows,
@@ -117,7 +130,10 @@ export const useDesktopStore = create<DesktopStoreState>((set, get) => ({
     set({
       windows: updatedWindows,
       activeWindowId: nextActive,
+      focusReturnByWindow: remainingFocus,
     });
+
+    return returnId;
   },
   focusWindow: (id) => {
     const { windows, zCounter, activeWindowId } = get();

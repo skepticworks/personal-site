@@ -1,4 +1,9 @@
-export type ContactLinkKind = "email" | "github" | "linkedin" | "other";
+export type ContactLinkKind =
+  | "email"
+  | "github"
+  | "linkedin"
+  | "resume"
+  | "other";
 
 export interface ContactLink {
   id: string;
@@ -27,7 +32,21 @@ export const contactLinks: ContactLink[] = [
     href: "https://github.com/skepticworks",
     description: "github.com/skepticworks",
   },
+  {
+    id: "linkedin",
+    kind: "linkedin",
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/tyler-matthews-53b379296/",
+    description: "linkedin.com/in/tyler-matthews-53b379296",
+  },
+  {
+    id: "resume",
+    kind: "resume",
+    label: "Resume",
+    href: "/resume.pdf",
+    description: "PDF resume",
+  },
 ];
 
 export const contactIntro =
-  "Based in Jupiter, FL. Reach out by email or find public work on GitHub.";
+  "Based in Jupiter, FL. Reach out by email or find public work on GitHub and LinkedIn.";
