@@ -24,11 +24,11 @@ export const siteConfig = {
   alumniOf: "University of Central Florida",
   sameAs: [
     "https://github.com/skepticworks",
-    "https://www.linkedin.com/in/tyler-matthews-53b379296/",
+    "https://www.linkedin.com/in/tyler-matthews-swe/",
   ] as const,
   resumePath: "/resume.pdf",
   githubUrl: "https://github.com/skepticworks",
-  linkedInUrl: "https://www.linkedin.com/in/tyler-matthews-53b379296/",
+  linkedInUrl: "https://www.linkedin.com/in/tyler-matthews-swe/",
   siteRepoUrl: "https://github.com/skepticworks/personal-site",
 } as const;
 

@@ -29,8 +29,8 @@ export const contactLinks: ContactLink[] = [
     id: "linkedin",
     kind: "linkedin",
     label: "LinkedIn",
-    href: "https://www.linkedin.com/in/tyler-matthews-53b379296/",
-    description: "linkedin.com/in/tyler-matthews-53b379296",
+    href: "https://www.linkedin.com/in/tyler-matthews-swe/",
+    description: "linkedin.com/in/tyler-matthews-swe",
   },
   {
     id: "github",
