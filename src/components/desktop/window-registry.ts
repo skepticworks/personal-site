@@ -40,10 +40,6 @@ export const windowRegistry: Record<DesktopWindowType, WindowRegistryEntry> = {
     ...desktopWindowDefinitions.skills,
     Content: SkillsWindowContent,
   },
-  links: {
-    ...desktopWindowDefinitions.links,
-    Content: ContactWindowContent,
-  },
 };
 
 export function getWindowDefinition(

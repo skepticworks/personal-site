@@ -29,7 +29,6 @@ export const portfolioProjects: PortfolioProject[] = [
     images: [],
     featured: true,
     sortOrder: 10,
-    startedAt: "2026-01-01",
   },
   {
     id: "proj-alpr-traffic-simulator",
@@ -50,7 +49,7 @@ export const portfolioProjects: PortfolioProject[] = [
       "Browser SPA only — not publicly deployed",
     ],
     category: "software",
-    status: "completed",
+    status: "personal",
     technologies: [
       "TypeScript",
       "React",
@@ -63,7 +62,6 @@ export const portfolioProjects: PortfolioProject[] = [
     images: [],
     featured: true,
     sortOrder: 20,
-    startedAt: "2026-01-01",
   },
   {
     id: "proj-polaris",
@@ -72,22 +70,24 @@ export const portfolioProjects: PortfolioProject[] = [
     summary:
       "Mapping lead on a 5-person team building IMDF-compliant indoor navigation data tooling.",
     description:
-      "Mapping lead on a 5-person team, owning the backend data tooling behind the app's indoor routing. Built a data-conversion pipeline producing IMDF-compliant navigation data, reducing manual processing, and hand-curated the full HEC building dataset. Developed tools to georeference GeoJSON building data and generate the navigation graph used by app routing, then integrated the IMDF bundle into the mobile app while validating decoder compatibility.",
+      "Mapping lead on a 5-person team, owning the backend data tooling behind the app's indoor routing. Built a data-conversion pipeline producing IMDF-compliant navigation data, reducing manual processing, and hand-curated the full L3Harris Engineering Center (UCF) building dataset. Developed tools to georeference GeoJSON building data and generate the navigation graph used by app routing, then integrated the IMDF bundle into the mobile app while validating decoder compatibility.",
     highlights: [
       "5-person team; mapping lead owning backend data tooling for indoor routing",
       "GeoJSON georeferencing to real-world coordinates",
       "Navigation graph line/point generation for app routing",
-      "IMDF-compliant conversion pipeline; hand-curated the full HEC building dataset",
+      "IMDF-compliant conversion pipeline; hand-curated the full L3Harris Engineering Center (UCF) building dataset",
       "Integrated with the mobile app's IMDF decoder; wrote pytest and Jest tests",
     ],
     category: "software",
-    status: "completed",
+    status: "team",
     technologies: ["GeoJSON", "IMDF", "pytest", "Jest", "Python"],
     links: {},
     images: [],
     featured: true,
     sortOrder: 30,
     startedAt: "2026-01-01",
+    endedAt: "2026-08-01",
+    dateLabel: "Spring–Summer 2026",
   },
   {
     id: "proj-personal-site",
@@ -118,7 +118,6 @@ export const portfolioProjects: PortfolioProject[] = [
     images: [],
     featured: true,
     sortOrder: 40,
-    startedAt: "2026-08-01",
     relatedCaptureIds: ["cap-orion-2024", "cap-andromeda-2025"],
   },
 ];
@@ -140,6 +139,27 @@ export function getProjectBySlug(slug: string): PortfolioProject | undefined {
   return portfolioProjects.find(
     (project) => project.slug.toLowerCase() === normalized,
   );
+}
+
+export function projectStatusLabel(
+  status: PortfolioProject["status"],
+): string {
+  switch (status) {
+    case "active":
+      return "In progress";
+    case "maintained":
+      return "Maintained";
+    case "completed":
+      return "Completed";
+    case "archived":
+      return "Archived";
+    case "concept":
+      return "Concept";
+    case "personal":
+      return "Personal project";
+    case "team":
+      return "Team project";
+  }
 }
 
 function compareProjectOrder(a: PortfolioProject, b: PortfolioProject): number {

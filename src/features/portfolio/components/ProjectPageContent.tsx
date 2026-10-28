@@ -1,21 +1,7 @@
 import Link from "next/link";
 
+import { projectStatusLabel } from "@/features/portfolio/data/projects";
 import type { PortfolioProject } from "@/types/portfolio";
-
-function statusLabel(status: PortfolioProject["status"]): string {
-  switch (status) {
-    case "active":
-      return "Active";
-    case "maintained":
-      return "Maintained";
-    case "completed":
-      return "Completed";
-    case "archived":
-      return "Archived";
-    case "concept":
-      return "Concept";
-  }
-}
 
 export function ProjectPageContent({ project }: { project: PortfolioProject }) {
   return (
@@ -28,10 +14,33 @@ export function ProjectPageContent({ project }: { project: PortfolioProject }) {
       <header className="project-page__header">
         <h1>{project.title}</h1>
         <p className="project-page__meta">
-          {statusLabel(project.status)} · {project.category}
+          {projectStatusLabel(project.status)}
+          {project.dateLabel ? ` · ${project.dateLabel}` : ""}
+          {` · ${project.category}`}
         </p>
         <p className="project-page__summary">{project.summary}</p>
       </header>
+
+      {project.images.length > 0 ? (
+        <section
+          className="project-page__media"
+          aria-labelledby="project-media"
+        >
+          <h2 id="project-media">Media</h2>
+          <div className="project-page__images">
+            {project.images.map((image) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={image.src}
+                src={image.src}
+                alt={image.alt}
+                width={image.width}
+                height={image.height}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="project-overview">
         <h2 id="project-overview">Overview</h2>

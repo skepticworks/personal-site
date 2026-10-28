@@ -12,27 +12,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: `${origin}/`,
-      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 1,
     },
     {
       url: `${origin}/list/`,
-      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${origin}/projects/`,
-      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,
     },
-    ...projects.map((project) => ({
-      url: `${origin}/projects/${project.slug}/`,
-      lastModified: new Date(project.updatedAt ?? project.startedAt),
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    })),
+    ...projects.map((project) => {
+      const lastModifiedSource = project.updatedAt ?? project.endedAt ?? project.startedAt;
+      return {
+        url: `${origin}/projects/${project.slug}/`,
+        ...(lastModifiedSource
+          ? { lastModified: new Date(lastModifiedSource) }
+          : {}),
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+      };
+    }),
   ];
 }

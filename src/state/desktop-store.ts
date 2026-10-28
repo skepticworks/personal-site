@@ -2,7 +2,10 @@
 
 import { create } from "zustand";
 
-import { desktopWindowDefinitions } from "@/config/desktop";
+import {
+  cascadedOpenPosition,
+  desktopWindowDefinitions,
+} from "@/config/desktop";
 import type {
   DesktopPoint,
   DesktopSize,
@@ -86,6 +89,15 @@ export const useDesktopStore = create<DesktopStoreState>((set, get) => ({
       return;
     }
 
+    const openCount = Object.values(windows).filter(
+      (windowState) => windowState.isOpen,
+    ).length;
+    const viewport =
+      typeof window !== "undefined"
+        ? { width: window.innerWidth, height: window.innerHeight }
+        : { width: 1280, height: 800 };
+    const position = cascadedOpenPosition(openCount, existing.size, viewport);
+
     const layer = nextZIndex(zCounter);
     set({
       activeWindowId: type,
@@ -97,6 +109,7 @@ export const useDesktopStore = create<DesktopStoreState>((set, get) => ({
           ...existing,
           isOpen: true,
           zIndex: layer.zIndex,
+          position,
         },
       },
     });

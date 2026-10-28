@@ -5,6 +5,7 @@
 export const siteConfig = {
   name: "Tyler Matthews",
   shortName: "Tyler Matthews",
+  roleLine: "Software Engineer · Backend, Automation & QA",
   title: {
     default: "Tyler Matthews | Software Engineer (Backend, Automation, QA)",
     template: "%s | Tyler Matthews",

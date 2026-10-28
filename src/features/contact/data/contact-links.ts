@@ -26,18 +26,18 @@ export const contactLinks: ContactLink[] = [
     description: "tyler.matthews@outlook.com",
   },
   {
-    id: "github",
-    kind: "github",
-    label: "GitHub",
-    href: "https://github.com/skepticworks",
-    description: "github.com/skepticworks",
-  },
-  {
     id: "linkedin",
     kind: "linkedin",
     label: "LinkedIn",
     href: "https://www.linkedin.com/in/tyler-matthews-53b379296/",
     description: "linkedin.com/in/tyler-matthews-53b379296",
+  },
+  {
+    id: "github",
+    kind: "github",
+    label: "GitHub",
+    href: "https://github.com/skepticworks",
+    description: "github.com/skepticworks",
   },
   {
     id: "resume",
@@ -48,5 +48,4 @@ export const contactLinks: ContactLink[] = [
   },
 ];
 
-export const contactIntro =
-  "Based in Jupiter, FL. Reach out by email or find public work on GitHub and LinkedIn.";
+export const contactIntro = "Based in Jupiter, FL.";

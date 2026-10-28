@@ -3,15 +3,28 @@ import Link from "next/link";
 
 import { SiteChrome } from "@/components/site/SiteChrome";
 import { aboutContent } from "@/features/about/data/about-content";
-import { contactLinks } from "@/features/contact/data/contact-links";
-import { listPortfolioProjects } from "@/features/portfolio/data/projects";
+import {
+  contactIntro,
+  contactLinks,
+} from "@/features/contact/data/contact-links";
+import {
+  listPortfolioProjects,
+  projectStatusLabel,
+} from "@/features/portfolio/data/projects";
 import { skillGroups } from "@/features/skills/data/skills";
-import { siteConfig } from "@/config/site";
+import { getSiteOrigin, siteConfig } from "@/config/site";
+
+const listUrl = `${getSiteOrigin()}/list/`;
 
 export const metadata: Metadata = {
   title: "List view",
   description: `Plain-text overview of ${siteConfig.name}: about, skills, projects, and contact.`,
-  alternates: { canonical: "/list" },
+  alternates: { canonical: "/list/" },
+  openGraph: {
+    url: listUrl,
+    title: "List view",
+    description: `Plain-text overview of ${siteConfig.name}: about, skills, projects, and contact.`,
+  },
 };
 
 export default function ListViewPage() {
@@ -69,6 +82,10 @@ export default function ListViewPage() {
             <h3>
               <Link href={`/projects/${project.slug}/`}>{project.title}</Link>
             </h3>
+            <p className="list-project__meta">
+              {projectStatusLabel(project.status)}
+              {project.dateLabel ? ` · ${project.dateLabel}` : ""}
+            </p>
             <p>{project.summary}</p>
             <p>{project.description}</p>
             <ul>
@@ -85,6 +102,7 @@ export default function ListViewPage() {
 
       <section className="list-section" aria-labelledby="list-contact">
         <h2 id="list-contact">Contact</h2>
+        <p>{contactIntro}</p>
         <ul>
           {contactLinks.map((link) => (
             <li key={link.id}>

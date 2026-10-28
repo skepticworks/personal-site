@@ -12,7 +12,9 @@ export type ProjectStatus =
   | "maintained"
   | "completed"
   | "archived"
-  | "concept";
+  | "concept"
+  | "personal"
+  | "team";
 
 export interface ProjectLinks {
   repository?: string;
@@ -32,11 +34,16 @@ export interface PortfolioProject {
   status: ProjectStatus;
   technologies: string[];
   links: ProjectLinks;
+  /** Optional screenshots/GIFs; omit or leave empty until assets exist. */
   images: WebImageAsset[];
   featured: boolean;
   /** Lower sorts first in project lists when not using date ordering. */
   sortOrder?: number;
-  startedAt: string;
+  /** ISO date when known; omit rather than inventing placeholders. */
+  startedAt?: string;
+  endedAt?: string;
+  /** Human-readable date range for UI (e.g. "Spring–Summer 2026"). */
+  dateLabel?: string;
   updatedAt?: string;
   /** Optional link to related astrophotography capture IDs. */
   relatedCaptureIds?: string[];

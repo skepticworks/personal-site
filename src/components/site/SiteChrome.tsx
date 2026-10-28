@@ -10,6 +10,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           <Link href="/" className="site-doc__home">
             {siteConfig.name}
           </Link>
+          <p className="site-doc__role">{siteConfig.roleLine}</p>
           <p className="site-doc__tagline">{siteConfig.description}</p>
         </div>
         <nav className="site-doc__nav" aria-label="Site">
@@ -33,6 +34,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
           >
             LinkedIn
           </a>
+          <a href={`mailto:${siteConfig.email}`}>Email</a>
+          <Link href="/list/#list-contact">Contact</Link>
         </nav>
       </header>
       <main className="site-doc__main">{children}</main>

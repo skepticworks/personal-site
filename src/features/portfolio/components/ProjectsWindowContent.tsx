@@ -2,23 +2,8 @@
 
 import { useMemo, useState } from "react";
 
+import { projectStatusLabel } from "@/features/portfolio/data/projects";
 import { listProjects } from "@/features/portfolio/list-featured-projects";
-import type { PortfolioProject } from "@/types/portfolio";
-
-function statusLabel(status: PortfolioProject["status"]): string {
-  switch (status) {
-    case "active":
-      return "Active";
-    case "maintained":
-      return "Maintained";
-    case "completed":
-      return "Completed";
-    case "archived":
-      return "Archived";
-    case "concept":
-      return "Concept";
-  }
-}
 
 export function ProjectsWindowContent() {
   const projects = useMemo(() => listProjects(), []);
@@ -61,9 +46,15 @@ export function ProjectsWindowContent() {
         <header className="projects-detail__header">
           <h3>{selected.title}</h3>
           <p className="projects-detail__meta">
-            <span>{statusLabel(selected.status)}</span>
+            <span>{projectStatusLabel(selected.status)}</span>
             <span aria-hidden="true">·</span>
             <span>{selected.category}</span>
+            {selected.dateLabel ? (
+              <>
+                <span aria-hidden="true">·</span>
+                <span>{selected.dateLabel}</span>
+              </>
+            ) : null}
             {selected.featured ? (
               <>
                 <span aria-hidden="true">·</span>
@@ -89,6 +80,20 @@ export function ProjectsWindowContent() {
             </span>
           ))}
         </div>
+        {selected.images.length > 0 ? (
+          <div className="projects-detail__images" aria-label="Project images">
+            {selected.images.map((image) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={image.src}
+                src={image.src}
+                alt={image.alt}
+                width={image.width}
+                height={image.height}
+              />
+            ))}
+          </div>
+        ) : null}
         <div className="projects-detail__links">
           <a href={`/projects/${selected.slug}/`}>Open full page</a>
           {selected.links.repository ? (

@@ -1,18 +1,15 @@
 # Personal Portfolio & Observatory
 
-Interactive personal workspace combining a professional software portfolio with an astronomy / astrophotography experience.
+Interactive personal site for [tylermatthews.dev](https://tylermatthews.dev): a desktop-style software portfolio paired with a React Three Fiber night-sky explorer and astrophotography.
 
-The landing experience is a full-screen **desktop-style portfolio**. Scrolling or swiping transitions into an **interactive celestial sky** with deep-sky waypoints, object search, inspection panel, and camera targeting.
+## Stack
 
-## Technology stack
+- Next.js (App Router) + React + TypeScript
+- Zustand for desktop / experience state
+- React Three Fiber + Three.js for the sky
+- Static export (`output: "export"`) for DigitalOcean App Platform hosting
 
-- **Next.js** (App Router) + **React** + **TypeScript** (strict)
-- **Zustand** for desktop window + experience state
-- **React Three Fiber** + **Three.js** for the celestial sky engine
-- **Vitest** for astronomy coordinate unit tests
-- **ESLint** + **Prettier**
-
-## Quick start
+## Run locally
 
 ```bash
 npm install
@@ -24,101 +21,26 @@ Open [http://localhost:3000](http://localhost:3000).
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Local development server |
-| `npm run build` | Production build (runs astro asset validation first) |
-| `npm run start` | Serve the production build |
+| `npm run build` | Production static export |
 | `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript (`tsc --noEmit`) |
-| `npm run test` | Unit tests (Vitest) |
-| `npm run validate:astro-assets` | Astrophotography asset / capture validation |
-| `npm run validate:content` | Project / object / capture content validation |
+| `npm run typecheck` | TypeScript check |
+| `npm run test` | Vitest unit tests |
 | `npm run validate` | Typecheck + content + astro asset validation |
-| `npm run format` | Format with Prettier |
-| `npm run format:check` | Check Prettier formatting |
 
-## Architecture overview
+## Content
 
-- [docs/architecture.md](docs/architecture.md) — conventions, state, DOM vs WebGL, transition ownership
-- [docs/desktop.md](docs/desktop.md) — window system, shortcuts, responsive notes
-- [docs/transition.md](docs/transition.md) — progress model, config, camera handoff
-- [docs/sky-engine.md](docs/sky-engine.md) — celestial coordinates, navigation, waypoints, quality
-- [docs/object-interface.md](docs/object-interface.md) — object panel, search, deep links
-- [docs/responsive-accessibility-performance.md](docs/responsive-accessibility-performance.md) — Milestone 7 responsive, a11y, perf
-- [docs/content.md](docs/content.md) — adding projects, deep-sky objects, and captures
-- [docs/astrophotography-publishing.md](docs/astrophotography-publishing.md) — capture publishing workflow
-- [docs/assets.md](docs/assets.md) — web-derivative asset policy
-- [docs/reference-images.md](docs/reference-images.md) — third-party reference imagery
+- Projects: `src/features/portfolio/data/projects.ts`
+- About: `src/features/about/data/about-content.ts`
+- Contact: `src/features/contact/data/contact-links.ts`
+- Skills: `src/features/skills/data/skills.ts`
+- Resume PDF: `public/resume.pdf`
 
-```text
-src/
-  app/
-  components/
-    desktop/           Desktop shell, shortcuts, windows
-    experience/        Experience host, mode controls, debug overlays
-    three/             R3F sky engine + transition camera
-      sky/             Star field, waypoints, celestial camera, labels
-  experience/
-    transition/        Progress, input, config, visual derivation
-    sky/               Sky wheel / exit policy
-  features/
-    portfolio/         Projects window + project data
-    about/             About window content
-    contact/           Contact links + window content
-    astronomy/         Coordinates, catalogs, object panel / search
-    captures/          Capture helpers + selectors
-  state/               desktop-store, experience-store, sky-runtime, …
-  config/              site, env, desktop, sky navigation/quality
-  types/
-  data/
-  hooks/
-  lib/
-public/assets/
-```
+Crawlable pages: `/list/`, `/projects/`, `/projects/[slug]/`.
 
-### Desktop usage
+## Cloudflare note
 
-- Shortcuts: Projects, About, Contact (configured in `src/config/desktop.ts`)
-- Add projects in `src/features/portfolio/data/projects.ts`
-- Add deep-sky objects in `src/features/astronomy/data/deep-sky-objects.ts`
-- Add captures in `src/features/captures/data/captures.ts`
-- See [docs/content.md](docs/content.md) for schemas, validation, and examples
-- Replace About/Contact placeholders in their feature `data/` files
-- Scroll / swipe (or **Explore the night sky**) enters the sky
-- In sky: drag to look, wheel to zoom (zoom out fully then scroll toward desktop to exit), tap waypoints or search (`/?object=andromeda-galaxy` deep links supported)
+If the live email appears as `[email protected]`, disable **Email Address Obfuscation** (Scrape Shield) for this domain in the Cloudflare dashboard. The site already emits a normal `mailto:` link in HTML.
 
-## Static asset policy
+## Docs
 
-This site hosts **web-optimized derivatives only** — not original
-astrophotography masters. See:
-
-- [docs/assets.md](docs/assets.md) — general asset policy
-- [docs/astrophotography-publishing.md](docs/astrophotography-publishing.md) — publishing workflow, privacy, checklist
-
-| Command | Purpose |
-| --- | --- |
-| `npm run validate:astro-assets` | Reject prohibited source files / invalid capture assets |
-| `npm run validate` | Typecheck + astro asset validation |
-
-## Environment configuration
-
-```bash
-cp .env.example .env.local
-```
-
-Typed access: `src/config/env.ts`.
-
-| Variable | Scope | Required | Notes |
-| --- | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | Public | No | Canonical site URL when known |
-| `NEXT_PUBLIC_VERCEL_ENV` | Public | No | Mapped from Vercel `VERCEL_ENV` |
-
-## GitHub + Vercel
-
-Create a GitHub repo, push, then import the project in Vercel (Next.js preset). No GitHub Actions are required for basic deploys.
-
-## Accessibility
-
-Portfolio content is available through normal DOM windows and shortcuts. The WebGL sky is an enhancement path with keyboard-accessible enter/leave controls; scroll is not required. When WebGL fails, a DOM astronomy browser preserves search and photography access. See [docs/responsive-accessibility-performance.md](docs/responsive-accessibility-performance.md).
-
-## License
-
-Private personal project unless otherwise noted.
+See `docs/` for architecture, desktop windows, sky transition, and content publishing.

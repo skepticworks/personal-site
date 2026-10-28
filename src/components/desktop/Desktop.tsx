@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -28,7 +29,6 @@ export function Desktop() {
     ),
   );
   const clearActiveWindow = useDesktopStore((state) => state.clearActiveWindow);
-  const openWindow = useDesktopStore((state) => state.openWindow);
   const [viewport, setViewport] = useState({ width: 1280, height: 800 });
 
   useEffect(() => {
@@ -50,52 +50,53 @@ export function Desktop() {
       <header className="desktop-brand">
         <p className="desktop-brand__eyebrow">Personal workspace</p>
         <h1 className="desktop-brand__title">{siteConfig.shortName}</h1>
+        <p className="desktop-brand__role">{siteConfig.roleLine}</p>
         <p className="desktop-brand__subtitle">{siteConfig.description}</p>
+        <p className="desktop-brand__cta">
+          <Link className="desktop-brand__projects-link" href="/projects/">
+            View projects
+          </Link>
+        </p>
       </header>
 
-      <div className="desktop-chrome" aria-label="Site links">
-        <button
-          type="button"
-          id="header-resume"
+      <nav className="desktop-chrome" aria-label="Site links">
+        <a
           className="desktop-header-button"
-          onClick={() =>
-            openWindow("resume", { focusReturnId: "header-resume" })
-          }
-        >
-          <IconDocument className="desktop-header-button__icon" />
-          Resume
-        </button>
-        <a
-          className="desktop-header-icon-link"
-          href={siteConfig.githubUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="GitHub profile"
-        >
-          <IconGitHub className="desktop-header-icon-link__icon" />
-        </a>
-        <a
-          className="desktop-header-icon-link"
-          href={siteConfig.linkedInUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="LinkedIn profile"
-        >
-          <IconLinkedIn className="desktop-header-icon-link__icon" />
-        </a>
-        <a
-          className="desktop-header-icon-link"
           href={siteConfig.resumePath}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Open resume PDF"
         >
-          <IconDocument className="desktop-header-icon-link__icon" />
+          <IconDocument className="desktop-header-button__icon" />
+          Resume
         </a>
-        <a className="desktop-header-text-link" href="/list/">
+        <a
+          className="desktop-header-button"
+          href={siteConfig.githubUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <IconGitHub className="desktop-header-button__icon" />
+          GitHub
+        </a>
+        <a
+          className="desktop-header-button"
+          href={siteConfig.linkedInUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <IconLinkedIn className="desktop-header-button__icon" />
+          LinkedIn
+        </a>
+        <a
+          className="desktop-header-button"
+          href={`mailto:${siteConfig.email}`}
+        >
+          Email
+        </a>
+        <a className="desktop-header-button" href="/list/">
           List view
         </a>
-      </div>
+      </nav>
 
       <nav className="desktop-shortcuts" aria-label="Desktop shortcuts">
         {desktopShortcuts.map((shortcut) => (

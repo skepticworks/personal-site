@@ -2,13 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SiteChrome } from "@/components/site/SiteChrome";
-import { listPortfolioProjects } from "@/features/portfolio/data/projects";
+import {
+  listPortfolioProjects,
+  projectStatusLabel,
+} from "@/features/portfolio/data/projects";
+import { getSiteOrigin } from "@/config/site";
 
 export const metadata: Metadata = {
   title: "Projects",
   description:
     "Software projects by Tyler Matthews — AI asset pipeline, ALPR traffic simulator, Polaris indoor navigation, and this portfolio.",
-  alternates: { canonical: "/projects" },
+  alternates: { canonical: "/projects/" },
+  openGraph: {
+    url: `${getSiteOrigin()}/projects/`,
+  },
 };
 
 export default function ProjectsIndexPage() {
@@ -27,6 +34,10 @@ export default function ProjectsIndexPage() {
             <h2>
               <Link href={`/projects/${project.slug}/`}>{project.title}</Link>
             </h2>
+            <p className="project-index__meta">
+              {projectStatusLabel(project.status)}
+              {project.dateLabel ? ` · ${project.dateLabel}` : ""}
+            </p>
             <p>{project.summary}</p>
             <ul className="project-index__highlights">
               {project.highlights.slice(0, 3).map((item) => (

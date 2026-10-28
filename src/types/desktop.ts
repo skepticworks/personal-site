@@ -3,8 +3,7 @@ export type DesktopWindowType =
   | "about"
   | "contact"
   | "resume"
-  | "skills"
-  | "links";
+  | "skills";
 
 export interface DesktopPoint {
   x: number;
